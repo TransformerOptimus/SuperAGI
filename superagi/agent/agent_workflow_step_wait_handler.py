@@ -18,7 +18,7 @@ class AgentWaitStepHandler:
     def execute_step(self):
         """Execute the agent wait step."""
 
-        logger.info("Executing Wait Step")
+        logger.info("Executing Wait STEPPPPPPPPPPPPPPPPPPPPP")
         execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
         workflow_step = AgentWorkflowStep.find_by_id(self.session, execution.current_agent_step_id)
         step_wait = AgentWorkflowStepWait.find_by_id(self.session, workflow_step.action_reference_id)

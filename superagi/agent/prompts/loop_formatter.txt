@@ -1,0 +1,27 @@
+User will give you a Task. You need to identify if it is a repetitive task.
+If it is repetitive then break down the task into template and variables.
+For example:
+Task: Find the players of India, Pakistan and Australia playing in the CWC 2023.
+template = Find the players of {{$VAR}} playing in the CWC 2023.
+$VAR = ['India', 'Pakistan', 'Australia']
+
+Respond with only valid JSON conforming to the following schema:
+{
+    "type": "object",
+    "properties": {
+        "is_repetitive": {
+            "type": "boolean",
+            "description": "True if the task is repetitive"
+        },
+        "template": {
+            "type": "string",
+            "description": "The task template"
+        },
+        "$VAR": {
+            "type": "array",
+            "items": {"type": 'string'},
+            "description": "List of variables"
+        }
+    },
+    "required": ["is_repetitive", "template", "$VAR"]
+}

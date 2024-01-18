@@ -62,7 +62,9 @@ class ToolOutputHandler:
         if not tool_response.retry:
             tool_response = self._check_for_completion(tool_response)
 
-        self.add_text_to_memory(assistant_reply, tool_response.result)
+        data = json.loads(assistant_reply)
+        if 'thoughts' in data:
+            self.add_text_to_memory(assistant_reply, tool_response.result)
         return tool_response
 
     def add_text_to_memory(self, assistant_reply,tool_response_result):

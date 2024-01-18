@@ -1,14 +1,12 @@
-from datetime import datetime
 import json
-from sqlalchemy import asc
 from sqlalchemy.sql.operators import and_
-import logging
-import superagi
 from superagi.agent.agent_message_builder import AgentLlmMessageBuilder
 from superagi.agent.agent_prompt_builder import AgentPromptBuilder
+from superagi.agent.loop_formatter import LoopFormatter
 from superagi.agent.output_handler import ToolOutputHandler, get_output_handler
 from superagi.agent.task_queue import TaskQueue
 from superagi.agent.tool_builder import ToolBuilder
+from superagi.agent.tool_executor import ToolExecutor
 from superagi.apm.event_handler import EventHandler
 from superagi.config.config import get_config
 from superagi.helper.error_handler import ErrorHandler
@@ -20,9 +18,7 @@ from superagi.models.agent_execution import AgentExecution
 from superagi.models.agent_execution_config import AgentExecutionConfiguration
 from superagi.models.agent_execution_feed import AgentExecutionFeed
 from superagi.models.agent_execution_permission import AgentExecutionPermission
-from superagi.models.organisation import Organisation
 from superagi.models.tool import Tool
-from superagi.models.workflows.agent_workflow import AgentWorkflow
 from superagi.models.workflows.agent_workflow_step import AgentWorkflowStep
 from superagi.models.workflows.iteration_workflow import IterationWorkflow
 from superagi.models.workflows.iteration_workflow_step import IterationWorkflowStep
@@ -44,6 +40,7 @@ class AgentIterationStepHandler:
         self.task_queue = TaskQueue(str(self.agent_execution_id))
 
     def execute_step(self):
+        logger.info("____________EXECUTING STEP______________")
         agent_config = Agent.fetch_configuration(self.session, self.agent_id)
         execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
         iteration_workflow_step = IterationWorkflowStep.find_by_id(self.session, execution.iteration_workflow_step_id)
@@ -94,10 +91,24 @@ class AgentIterationStepHandler:
                                                                                              agent_config['agent_id'], total_tokens, tool_name, agent_config['model'])
 
         assistant_reply = response['content']
+        # logger.info("OUTPUTTTTTT:", assistant_reply)
         output_handler = get_output_handler(iteration_workflow_step.output_type,
                                             agent_execution_id=self.agent_execution_id,
                                             agent_config=agent_config,memory=self.memory, agent_tools=agent_tools)
         response = output_handler.handle(self.session, assistant_reply)
+
+        formatter = LoopFormatter(self.llm)
+        loop_formatter_output = json.loads(formatter._loop_formatter(prompt_question=json.loads(assistant_reply)["thoughts"]["speak"]))
+        func_output = ""
+        logger.info("________________LOOP OUTPUT________________", loop_formatter_output)
+        if loop_formatter_output['is_repetitive']:
+            for variable in loop_formatter_output['$VAR']:
+                logger.info(f"########    Entering loop for variable {variable}")
+                tool_executor = ToolExecutor(organisation_id=self.organisation.id, agent_id=self.agent_id, tools=agent_tools, agent_execution_id=self.agent_execution_id)
+                func_output += tool_executor._tool_executor(task=loop_formatter_output['template'].replace('{$VAR}',variable), tool_input=assistant_reply, output_handler=output_handler, session=self.session, llm=self.llm)
+                func_output += "\n"
+            logger.info(f"########    Loop Execution Done!::\n", func_output)
+
         if response.status == "COMPLETE":
             execution.status = "COMPLETED"
             self.session.commit()
@@ -116,17 +127,20 @@ class AgentIterationStepHandler:
         else:
             # moving to next step of iteration or workflow
             self._update_agent_execution_next_step(execution, iteration_workflow_step.next_step_id)
+            logger.info("IDDDDDDDDDDDDDDDDDD: ",iteration_workflow_step.next_step_id)
             logger.info(f"Starting next job for agent execution id: {self.agent_execution_id}")
 
         self.session.flush()
 
     def _update_agent_execution_next_step(self, execution, next_step_id, step_response: str = "default"):
         if next_step_id == -1:
+            # logger.info("AAAAAAAAAAAAA")
             next_step = AgentWorkflowStep.fetch_next_step(self.session, execution.current_agent_step_id, step_response)
             if str(next_step) == "COMPLETE":
                 execution.current_agent_step_id = -1
                 execution.status = "COMPLETED"
             else:
+                # logger.info("BBBBBBBBBBBBBB")
                 AgentExecution.assign_next_step_id(self.session, self.agent_execution_id, next_step.id)
         else:
             execution.iteration_workflow_step_id = next_step_id
@@ -213,6 +227,4 @@ class AgentIterationStepHandler:
         execution = AgentExecution.find_by_id(self.session, agent_execution_permission.agent_execution_id)
         self._update_agent_execution_next_step(execution, iteration_workflow_step.next_step_id)
         self.session.commit()
-
-
         return True

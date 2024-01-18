@@ -82,14 +82,14 @@ class AgentExecutor:
 
             agent_workflow_step = session.query(AgentWorkflowStep).filter(
                 AgentWorkflowStep.id == agent_execution.current_agent_step_id).first()
-            try:
-                self.__execute_workflow_step(agent, agent_config, agent_execution_id, agent_workflow_step, memory,
+            # try:
+            self.__execute_workflow_step(agent, agent_config, agent_execution_id, agent_workflow_step, memory,
                                              model_api_key, organisation, session)
 
-            except Exception as e:
-                logger.info("Exception in executing the step: {}".format(e))
-                superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=15)
-                return
+            # except Exception as e:
+            #     logger.info("Exception in executing the step: {}".format(e))
+            #     superagi.worker.execute_agent.apply_async((agent_execution_id, datetime.now()), countdown=15)
+            #     return
 
             agent_execution = session.query(AgentExecution).filter(AgentExecution.id == agent_execution_id).first()
             if agent_execution.status == "COMPLETED" or agent_execution.status == "WAITING_FOR_PERMISSION":

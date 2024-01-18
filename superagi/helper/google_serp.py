@@ -5,6 +5,7 @@ import aiohttp
 
 from superagi.config.config import get_config
 from superagi.helper.webpage_extractor import WebpageExtractor
+from superagi.lib.logger import logger
 
 
 class GoogleSerpApiWrap:
@@ -52,7 +53,7 @@ class GoogleSerpApiWrap:
             dict: The search results.
         """
         headers = {
-            "X-API-KEY": self.api_key or "",
+            "X-API-KEY": '7f74ae1e179ca5d7a6d0d2285ef346ac29edd080',
             "Content-Type": "application/json",
         }
         params = {"q": query,}

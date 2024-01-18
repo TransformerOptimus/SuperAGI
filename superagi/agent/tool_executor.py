@@ -1,3 +1,4 @@
+import json
 from pydantic import ValidationError
 
 from superagi.agent.common_types import ToolExecutorResponse
@@ -71,3 +72,71 @@ class ToolExecutor:
             if type(args[key]) is dict and "value" in args[key]:
                 parsed_args[key] = args[key]["value"]
         return parsed_args
+
+    def  _get_tool_executor_prompt(self, tool_name, task, tool_schema, valid_plans):
+        prompt = ""
+        with open('superagi/agent/prompts/tool_executor.txt', 'r') as f:
+            prompt = f.read()
+        prompt = prompt.replace('{tool_name}', tool_name)
+        prompt = prompt.replace('{task}', task)
+        prompt = prompt.replace('{tool_schema}', tool_schema)
+        prompt = prompt.replace('{valid_plans}', valid_plans)
+        return prompt
+
+    def _tool_executor_step(self, msgs: list, task: str, tool_name: str, tool_input: str, tool_output: str, llm):
+        content = f'''Task: {task}
+
+        Input to `{tool_name}` tool:
+        {tool_input}
+
+        Output from `{tool_name}` tool:
+        {tool_output}
+
+        Is the above output enough to complete the task?
+        '''
+        query = {"role": "user", "content": content}
+        logger.info(f"########    {query['role']}\n\n{query['content']}\n\n")
+        new_msgs = msgs + [query]
+        c = llm.chat_completion(messages=new_msgs)
+
+        # Step 2: check if GPT wanted to call a function
+        logger.debug("_________TOOL_EXECUTOR_RESPONSE________")
+        if c['content']:
+            content = c['content']
+            msg = {"role": "assistant", "content": content}
+            msgs.append(query)
+            msgs.append(msg)
+            logger.info(f"########    {msg['role']}\n\n{msg['content']}\n\n")
+            return msgs
+        else:
+            raise Exception(c)
+    
+    def _tool_executor(self, task: str, tool_input: str, output_handler, session, llm):
+        msgs = []
+        tool_name = 'googleserp'
+        tool_schema = """{'properties': {'query': {'description': 'verbose query for google search', 'title': 'Query', 'type': 'string'}}, 'required': ['query'], 'title': 'Input for `google_serp`', 'type': 'object'}"""
+        valid_plans = str(['Try a different search query',
+                        'Add relevant data from the given task in search query'])
+        system_prompt = self._get_tool_executor_prompt(tool_name, task, tool_schema, valid_plans)
+        msg = {"role": "system", "content": system_prompt}
+        msgs = [msg]
+        logger.info(f"########    {msg['role']}\n\n{msg['content']}\n\n")
+        output = output_handler.handle(session, tool_input)
+        
+        msgs = self._tool_executor_step(msgs=msgs, task=task, tool_name=tool_name, tool_input=tool_input, tool_output=output, llm=llm)
+        logger.debug("MESSGAESSS: ", msgs)
+        r = json.loads(msgs[-1]['content'])
+        while (r['reasoning']['judgement'] != "Task Completed"):
+            print("__________ENTERING WHILE LOOP__________")
+            input = r['action']['input']
+            input_for_tool = {
+                "tool": {
+                "name": "googleserp",
+                "args": {
+                    "query": input['query']
+                }
+            }}
+            output = output_handler.handle(session, json.dumps(input_for_tool))
+            msgs = self._tool_executor_step(msgs=msgs, task=task, tool_name=tool_name, tool_input=json.dumps(input_for_tool), tool_output=output, llm=llm)
+            r = json.loads(msgs[-1]['content'])
+        return r['reasoning']['final_answer']
