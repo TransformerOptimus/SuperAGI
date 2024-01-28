@@ -189,7 +189,7 @@ cd SuperAGI
 
 ### 📖 Need Help?
 
-Join our [Discord community](https://discord.gg/YRUmuRMd) for support and discussions.
+Join our [Discord community](https://discord.gg/dXbRe5BHJC) for support and discussions.
 
 [![Join us on Discord](https://invidget.switchblade.xyz/uJ3XUGsY2R)](https://discord.gg/uJ3XUGsY2R)
 
