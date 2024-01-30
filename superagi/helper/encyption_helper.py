@@ -2,6 +2,7 @@ import base64
 
 from cryptography.fernet import Fernet, InvalidToken, InvalidSignature
 from superagi.config.config import get_config
+from superagi.lib.logger import logger
 # Generate a key
 # key = Fernet.generate_key()
 
@@ -53,7 +54,7 @@ def decrypt_data(encrypted_data):
 
 
 def is_encrypted(value):
-    key = b'e3mp0E0Jr3jnVb96A31_lKzGZlSTPIp4-rPaVseyn58='
+    #key = get_config("ENCRYPTION_KEY")
     try:
         f = Fernet(key)
         f.decrypt(value)
