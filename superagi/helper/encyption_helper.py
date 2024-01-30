@@ -53,7 +53,6 @@ def decrypt_data(encrypted_data):
 
 
 def is_encrypted(value):
-    key = b'e3mp0E0Jr3jnVb96A31_lKzGZlSTPIp4-rPaVseyn58='
     try:
         f = Fernet(key)
         f.decrypt(value)
