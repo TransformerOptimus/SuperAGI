@@ -74,3 +74,4 @@ networks:
 volumes:
   superagi_postgres_data:
   redis_data:
+          
