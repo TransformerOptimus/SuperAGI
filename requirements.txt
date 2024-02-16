@@ -29,6 +29,7 @@ dataclasses-json==0.5.7
 defusedxml==0.7.1
 docx2txt==0.8
 dnspython==2.3.0
+django
 email-validator==2.0.0.post2
 exceptiongroup==1.1.1
 fake-useragent==1.1.3
