@@ -1,11 +1,11 @@
 #####################------------------SYSTEM KEYS-------------------------########################
-PINECONE_API_KEY: 390bc76a-4949-4903-887c-ad2206384c3a
-PINECONE_ENVIRONMENT: us-west1-gcp
+PINECONE_API_KEY: 
+PINECONE_ENVIRONMENT: 
 
-OPENAI_API_KEY: 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
-GEMINI_API_KEY: AIzaSyDxp4a2KtKPHsYfaXXEOd__uy3JLzqO8XA
-REPLICATE_API_TOKEN: r8_VFuXWCH0Xuzn7mDBN1KgR7LdxJLbull43jad6
-HUGGING_API_TOKEN: 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
+OPENAI_API_KEY: 
+GEMINI_API_KEY: 
+REPLICATE_API_TOKEN: 
+HUGGING_API_TOKEN: 
 
 # For locally hosted LLMs comment out the next line and uncomment the one after
 # to configure a local llm point your browser to 127.0.0.1:7860 and click on the model tab in text generation web ui.
@@ -51,8 +51,8 @@ JWT_SECRET_KEY: 'secret'
 expiry_time_hours: 1
 
 #GITHUB OAUTH:
-GITHUB_CLIENT_ID: GaryOcean428
-GITHUB_CLIENT_SECRET: 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
+GITHUB_CLIENT_ID: 
+GITHUB_CLIENT_SECRET:
 FRONTEND_URL: "http://localhost:3000"
 
 #ENCRYPTION KEY, Replace this with your own key for production
@@ -62,21 +62,21 @@ ENCRYPTION_KEY: abcdefghijklmnopqrstuvwxyz123456
 
 # If you are using docker or web hosted uncomment the next two lines and comment the third one
 WEAVIATE_URL: https://weav-sand-sluster-pixzxbft.weaviate.network
-WEAVIATE_API_KEY: uzRzR569JhKuoKz8r6SJVsFjDrpORqSFjHkN
+WEAVIATE_API_KEY: 
 WEAVIATE_USE_EMBEDDED: true
 
 
 #####################------------------TOOLS KEY-------------------------########################
 #If you have google api key and CSE key, use this
-GOOGLE_API_KEY: AIzaSyBpt74U83yX84nHCa6KrivhY4v24CWJY_s
-SEARCH_ENGINE_ID: 55dd0bc877b8841de
+GOOGLE_API_KEY: 
+SEARCH_ENGINE_ID:
 
 # IF YOU DONT HAVE GOOGLE SEARCH KEY, YOU CAN USE SERPER.DEV KEYS
-SERP_API_KEY: b6e6e678677e570bb876e8fc5b546188a66e4b2c
+SERP_API_KEY: 
 
 #ENTER YOUR EMAIL CREDENTIALS TO ACCESS EMAIL TOOL
-EMAIL_ADDRESS: braden.lang@skillhiregto.com.au
-EMAIL_PASSWORD: pxzl zfda vnxx pbzs #get the app password from (https://myaccount.google.com/apppasswords)
+EMAIL_ADDRESS:
+EMAIL_PASSWORD: 
 EMAIL_SMTP_HOST: smtp.gmail.com #Change the SMTP host if not using Gmail
 EMAIL_SMTP_PORT: 587 #Change the SMTP port if not using Gmail
 EMAIL_IMAP_SERVER: imap.gmail.com #Change the IMAP Host if not using Gmail
@@ -85,8 +85,8 @@ EMAIL_DRAFT_MODE_WITH_FOLDER: YOUR_DRAFTS_FOLDER
 EMAIL_ATTACHMENT_BASE_PATH: YOUR_DIRECTORY_FOR_EMAIL_ATTACHMENTS
 
 # GITHUB
-GITHUB_USERNAME: GaryOcean428
-GITHUB_ACCESS_TOKEN: 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
+GITHUB_USERNAME: 
+GITHUB_ACCESS_TOKEN:
 
 #JIRA
 JIRA_INSTANCE_URL: YOUR_JIRA_INSTANCE_URL
@@ -97,7 +97,7 @@ JIRA_API_TOKEN: YOUR_JIRA_API_TOKEN
 SLACK_BOT_TOKEN: YOUR_SLACK_BOT_TOKEN
 
 # For running stable diffusion
-STABILITY_API_KEY: sk-i0bACiouj1xUnEqI2G6MLKsDn6BVjo3QCrey8x6D0IvMIY79
+STABILITY_API_KEY: 
 Engine IDs that can be used: 'stable-diffusion-v1', 'stable-diffusion-v1-5','stable-diffusion-512-v2-0', 'stable-diffusion-768-v2-0','stable-diffusion-512-v2-1','stable-diffusion-768-v2-1','stable-diffusion-xl-beta-v2-2-2'
 ENGINE_ID: "stable-diffusion-xl-beta-v2-2-2"
 
