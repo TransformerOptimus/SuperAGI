@@ -19,6 +19,14 @@ RUN python3.10 -c "import nltk; nltk.download('punkt')" && \
 
 COPY . .
 
+COPY entrypoint.sh .
+
+COPY wait-for-it.sh .
+
+COPY install_tool_dependencies.sh .
+
+COPY entrypoint_celery.sh .
+
 RUN chmod +x ./entrypoint.sh ./wait-for-it.sh ./install_tool_dependencies.sh ./entrypoint_celery.sh
 
 # Stage 2: Build image
