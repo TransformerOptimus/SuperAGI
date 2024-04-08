@@ -7,7 +7,7 @@ from typing import Any, Callable, Optional, Iterable, List
 from superagi.vector_store.embedding.base import BaseEmbedding
 
 
-class Pinecone(VectorStore):
+class PineconeVectorStore(VectorStore):
     """
     Pinecone vector store.
 
