@@ -1,5 +1,5 @@
 #!groovy
 
-@Library('contlo_ci_cd') _
+@Library('jenkins-libraries') _
 
 superagiK8()
