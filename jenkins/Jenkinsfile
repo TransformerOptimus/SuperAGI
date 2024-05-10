@@ -1,5 +1,5 @@
 #!groovy
 
-@Library('jenkins-libraries') _
+@Library('updateTag') _
 
 superagiK8()
