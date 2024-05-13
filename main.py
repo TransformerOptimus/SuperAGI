@@ -207,21 +207,21 @@ def replace_old_iteration_workflows(session):
 @app.on_event("startup")
 async def startup_event():
     # Perform startup tasks here
-    #logger.info("Running Startup tasks")
+    logger.info("Running Startup tasks")
     Session = sessionmaker(bind=engine)
     session = Session()
     default_user = session.query(User).filter(User.email == "super6@agi.com").first()
-    #logger.info(default_user)
+    logger.info(default_user)
     if default_user is not None:
         organisation = session.query(Organisation).filter_by(id=default_user.organisation_id).first()
-        #logger.info(organisation)
+        logger.info(organisation)
         register_toolkits(session, organisation)
 
     def register_toolkit_for_all_organisation():
         organizations = session.query(Organisation).all()
         for organization in organizations:
             register_toolkits(session, organization)
-        #logger.info("Successfully registered local toolkits for all Organisations!")
+        logger.info("Successfully registered local toolkits for all Organisations!")
 
     def register_toolkit_for_master_organisation():
         marketplace_organisation_id = superagi.config.config.get_config("MARKETPLACE_ORGANISATION_ID")
