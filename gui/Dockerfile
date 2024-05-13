@@ -11,4 +11,4 @@ ARG NEXT_PUBLIC_MIXPANEL_AUTH_ID
 ENV NEXT_PUBLIC_MIXPANEL_AUTH_ID=$NEXT_PUBLIC_MIXPANEL_AUTH_ID
 RUN npm run build
 RUN chmod +x ./entrypoint*
-ENTRYPOINT ["entrypoint.sh"]
+ENTRYPOINT ["./entrypoint.sh"]
