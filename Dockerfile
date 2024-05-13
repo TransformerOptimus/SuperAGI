@@ -10,6 +10,9 @@ RUN python -m nltk.downloader averaged_perceptron_tagger punkt
 COPY . .
 RUN chmod +x ./entrypoint*
 
+RUN python superagi/tool_manager.py
+RUN ./install_tool_dependencies.sh
+
 EXPOSE 8000
 EXPOSE 80
 
