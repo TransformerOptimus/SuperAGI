@@ -185,24 +185,38 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
 
 def replace_old_iteration_workflows(session):
     templates = session.query(AgentTemplate).all()
+    logger.info(f"Found {len(templates)} templates to check for old iteration workflows.")
+
+    # Mapping of old workflow names to new workflow names
+    workflow_name_mapping = {
+        "Fixed Task Queue": "Fixed Task Workflow",
+        "Maintain Task Queue": "Dynamic Task Workflow",
+        "Don't Maintain Task Queue": "Goal Based Workflow",
+        "Goal Based Agent": "Goal Based Workflow",
+    }
+
+    # Pre-fetch workflow mappings to reduce database queries
+    new_workflow_ids = {
+        old_name: AgentWorkflow.find_by_name(session, new_name).id
+        for old_name, new_name in workflow_name_mapping.items()
+    }
+
+    update_count = 0
     for template in templates:
         iter_workflow = IterationWorkflow.find_by_id(session, template.agent_workflow_id)
         if not iter_workflow:
             continue
-        if iter_workflow.name == "Fixed Task Queue":
-            agent_workflow = AgentWorkflow.find_by_name(session, "Fixed Task Workflow")
-            template.agent_workflow_id = agent_workflow.id
-            session.commit()
 
-        if iter_workflow.name == "Maintain Task Queue":
-            agent_workflow = AgentWorkflow.find_by_name(session, "Dynamic Task Workflow")
-            template.agent_workflow_id = agent_workflow.id
-            session.commit()
+        new_workflow_id = new_workflow_ids.get(iter_workflow.name)
+        if new_workflow_id:
+            template.agent_workflow_id = new_workflow_id
+            update_count += 1
 
-        if iter_workflow.name == "Don't Maintain Task Queue" or iter_workflow.name == "Goal Based Agent":
-            agent_workflow = AgentWorkflow.find_by_name(session, "Goal Based Workflow")
-            template.agent_workflow_id = agent_workflow.id
-            session.commit()
+    if update_count:
+        session.commit()
+        logger.info(f"Updated {update_count} templates with new iteration workflows.")
+    else:
+        logger.info("No templates required updates.")
 
 @app.on_event("startup")
 async def startup_event():
@@ -217,6 +231,8 @@ async def startup_event():
         logger.info(organisation)
         register_toolkits(session, organisation)
 
+    logger.info(f'default user {default_user}')
+
     def register_toolkit_for_all_organisation():
         organizations = session.query(Organisation).all()
         for organization in organizations:
@@ -230,10 +246,14 @@ async def startup_event():
         if marketplace_organisation is not None:
             register_marketplace_toolkits(session, marketplace_organisation)
 
+    logger.info("Running Workflow Seed")
+
     IterationWorkflowSeed.build_single_step_agent(session)
     IterationWorkflowSeed.build_task_based_agents(session)
     IterationWorkflowSeed.build_action_based_agents(session)
     IterationWorkflowSeed.build_initialize_task_workflow(session)
+
+    logger.info("Running Agent Workflow Seed")
 
     AgentWorkflowSeed.build_goal_based_agent(session)
     AgentWorkflowSeed.build_task_based_agent(session)
@@ -242,6 +262,10 @@ async def startup_event():
     AgentWorkflowSeed.build_recruitment_workflow(session)
     AgentWorkflowSeed.build_coding_workflow(session)
 
+    logger.info("Done seeding workflows")
+
+    logger.info("Running Workflow Seed")
+
     # NOTE: remove old workflows. Need to remove this changes later
     workflows = ["Sales Engagement Workflow", "Recruitment Workflow", "SuperCoder", "Goal Based Workflow",
      "Dynamic Task Workflow", "Fixed Task Workflow"]
@@ -249,13 +273,21 @@ async def startup_event():
     for workflow in workflows:
         session.delete(workflow)
 
+    logger.info("Done seeding workflows")
+
     # AgentWorkflowSeed.doc_search_and_code(session)
     # AgentWorkflowSeed.build_research_email_workflow(session)
+
+    logger.info("Replacing old iteration workflows")
+
     replace_old_iteration_workflows(session)
 
+    logger.info("Done replacing old iteration workflows")
     if env != "PROD":
+        logger.info("Running local toolkits registration")
         register_toolkit_for_all_organisation()
     else:
+        logger.info("Running marketplace toolkits registration")
         register_toolkit_for_master_organisation()
     session.close()
 
