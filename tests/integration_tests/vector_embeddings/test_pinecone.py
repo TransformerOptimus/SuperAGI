@@ -1,5 +1,5 @@
 import unittest
-from superagi.vector_embeddings.pinecone import Pinecone  
+from superagi.vector_embeddings.pinecone import PineconeVectorEmbeddings  
 
 
 class TestPinecone(unittest.TestCase):
@@ -8,7 +8,7 @@ class TestPinecone(unittest.TestCase):
         self.uuid = ["id1", "id2"]
         self.embeds = ["embed1", "embed2"]
         self.metadata = ["metadata1", "metadata2"]
-        self.pinecone_instance = Pinecone(self.uuid, self.embeds, self.metadata)
+        self.pinecone_instance = PineconeVectorEmbeddings(self.uuid, self.embeds, self.metadata)
 
     def test_init(self):
         self.assertEqual(self.pinecone_instance.uuid, self.uuid)

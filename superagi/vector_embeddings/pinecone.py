@@ -1,7 +1,7 @@
 from typing import Any
 from superagi.vector_embeddings.base import VectorEmbeddings
 
-class Pinecone(VectorEmbeddings):
+class PineconeVectorEmbeddings(VectorEmbeddings):
 
     def __init__(self, uuid, embeds, metadata):
         self.uuid = uuid

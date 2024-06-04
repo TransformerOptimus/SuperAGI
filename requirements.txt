@@ -87,7 +87,7 @@ orjson==3.8.14
 packaging==23.1
 parse==1.19.0
 Pillow==9.5.0
-pinecone-client==2.2.1
+pinecone-client==3.2.2
 prompt-toolkit==3.0.38
 psycopg2==2.9.6
 pycparser==2.21

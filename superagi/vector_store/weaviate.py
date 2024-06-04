@@ -40,7 +40,7 @@ def create_weaviate_client(
     return client
 
 
-class Weaviate(VectorStore):
+class WeaviateVectorStore(VectorStore):
     def __init__(
         self, client: weaviate.Client, embedding_model: Any, class_name: str, text_field: str = "text"
     ):
