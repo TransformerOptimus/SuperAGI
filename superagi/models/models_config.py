@@ -117,8 +117,7 @@ class ModelsConfig(DBBaseModel):
             logging.error("No API key found for the provided model provider")
             return []
 
-        api_keys = [{"provider": provider, "api_key": decrypt_data(api_key)} for provider, api_key in
-                    api_key_info]
+        api_keys = [{"provider": provider, "api_key": decrypt_data(api_key)} for provider, api_key in api_key_info if api_key != 'EMPTY']
 
         return api_keys
 
