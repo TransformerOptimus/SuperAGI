@@ -58,7 +58,7 @@ class TextGenerationParameters():
     The more a token is used within generation the more it is penalized to not be picked in successive generation passes.
 
     max_new_tokens: (Default: None). Int (0-250).
-    The amount of new tokens to be generated, this does not include the input length it is a estimate of the size of generated text you want. Each new tokens slows down the request, so look for balance between response times and length of text generated.
+    The amount of new tokens to be generated, this does not include the input length it is an estimate of the size of generated text you want. Each new tokens slows down the request, so look for balance between response times and length of text generated.
 
     max_time: (Default: None). Float (0-120.0).
     The amount of time in seconds that the query should take maximum.
