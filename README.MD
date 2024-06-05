@@ -181,6 +181,36 @@ cd SuperAGI
 ![ER Diagram](https://superagi.com/wp-content/uploads/2023/09/ER-Diagram.png)
 </details>
 
+
+### Use Anthropic,Huggingface,Palm,Ollama, etc.[Full List](https://docs.litellm.ai/docs/providers)
+
+### Create OpenAI-proxy
+We'll use [LiteLLM](https://docs.litellm.ai/docs/) to create an OpenAI-compatible endpoint, that translates OpenAI calls to any of the [supported providers](https://docs.litellm.ai/docs/providers).
+
+
+Example to use a local CodeLLama model from Ollama.ai with SuperAGI: 
+
+Let's spin up a proxy server to route any OpenAI call from SuperAGI to Ollama/CodeLlama
+
+```python
+pip install litellm
+```
+```python
+$ litellm --model ollama/codellama
+
+#INFO: Ollama running on http://0.0.0.0:8000
+```
+
+[Docs](https://docs.litellm.ai/docs/proxy_server)
+
+### Update SuperAGI
+
+In your config.yaml
+```yaml
+OPENAI_API_KEY: my-fake-key
+OPENAI_API_BASE: http://0.0.0.0:8000
+```
+
 ### 📚 Resources
 
 * [Documentation](https://superagi.com/docs/)
