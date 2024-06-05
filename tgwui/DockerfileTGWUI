@@ -1,4 +1,4 @@
-FROM nvidia/cuda:11.8.0-devel-ubuntu22.04 AS env_base
+FROM nvidia/cuda:12.1.0-devel-ubuntu22.04 AS env_base
 # Pre-reqs
 RUN apt-get update && apt-get install --no-install-recommends -y \
     git vim build-essential python3-dev python3-venv python3-pip
@@ -35,7 +35,7 @@ RUN git clone https://github.com/oobabooga/GPTQ-for-LLaMa.git -b cuda /app/repos
 ARG TORCH_CUDA_ARCH_LIST="6.1;7.0;7.5;8.0;8.6+PTX"
 RUN cd /app/repositories/GPTQ-for-LLaMa/ && python3 setup_cuda.py install
 
-FROM nvidia/cuda:11.8.0-devel-ubuntu22.04 AS base
+FROM nvidia/cuda:12.1.0-devel-ubuntu22.04 AS base
 # Runtime pre-reqs
 RUN apt-get update && apt-get install --no-install-recommends -y \
     python3-venv python3-dev git
