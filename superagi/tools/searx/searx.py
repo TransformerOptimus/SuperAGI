@@ -46,7 +46,16 @@ class SearxSearchTool(BaseTool):
         Returns:
             Snippets from the Searx search.
         """
-        snippets = search_results(query)
+        try:
+            snippets = search_results(query)
+        except HTTPError as http_err:
+            if http_err.response.status_code == 429:
+                return "Error: Searx returned 429 status code. Too many requests. Please try again later."
+            else:
+                return f"HTTP error occurred: {http_err}"
+        except Exception as err:
+            return f"An error occurred: {err}"
+        
         summary = self.summarise_result(query, snippets)
 
         return summary
