@@ -10,6 +10,7 @@ from superagi.vector_store import qdrant
 from superagi.vector_store.redis import Redis
 from superagi.vector_store.embedding.openai import OpenAiEmbedding
 from superagi.vector_store.qdrant import Qdrant
+from superagi.vector_store.mongodb import MongoDB
 
 
 class VectorFactory:
@@ -79,6 +80,12 @@ class VectorFactory:
             redis = Redis(index_name, embedding_model)
             redis.create_index()
             return redis
+        
+        if vector_store == VectorStoreType.MONGODB:
+            index_name = "super-agent-index1"
+            mongodb = MongoDB(index_name, embedding_model)
+            mongodb.create_index()
+            return mongodb
 
         raise ValueError(f"Vector store {vector_store} not supported")
     
