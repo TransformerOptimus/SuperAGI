@@ -1,3 +1,4 @@
+#sudo su 
 <p align="center">
   <a href="https://superagi.com//#gh-light-mode-only">
     <img src="https://superagi.com/wp-content/uploads/2023/05/Logo-dark.svg" width="318px" alt="SuperAGI logo" />
