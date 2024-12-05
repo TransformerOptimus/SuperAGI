@@ -126,11 +126,11 @@ class Qdrant(VectorStore):
         Returns:
             The list of documents most similar to the query
         """
-        if embedding is not None and text is not None:
+        if embedding and text:
             raise ValueError("Only provide embedding or text")
-        if text is not None:
+        if text:
             embedding = self.__get_embeddings(text)[0]
-
+        filter_ = None
         if metadata is not None:
             filter_conditions = []
             for key, value in metadata.items():
@@ -138,14 +138,14 @@ class Qdrant(VectorStore):
                 metadata_filter["key"] = key
                 metadata_filter["match"] = {"value": value}
                 filter_conditions.append(metadata_filter)
-            filter = models.Filter(
+            filter_ = models.Filter(
                 must = filter_conditions
             )
         try:
             results = self.client.search(
             collection_name=self.collection_name,
             query_vector=embedding,
-            query_filter=filter,
+            query_filter=filter_,
             search_params=search_params,
             limit=k,
             offset=offset,
@@ -206,9 +206,14 @@ class Qdrant(VectorStore):
         """Return embeddings for a list of texts using the embedding model."""
         if self.embedding_model is not None:
             query_vectors = []
-            for text in texts:
-                query_vector = self.embedding_model.get_embedding(text)
+            if type(texts) is list:
+                for text in texts:
+                    query_vector = self.embedding_model.get_embedding(text)
+                    query_vectors.append(query_vector)
+            else:
+                query_vector = self.embedding_model.get_embedding(texts)
                 query_vectors.append(query_vector)
+            return query_vectors
         else:
             raise ValueError("Embedding model is not set")
         
