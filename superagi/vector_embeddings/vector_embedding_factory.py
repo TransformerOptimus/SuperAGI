@@ -1,10 +1,8 @@
 
-import pinecone
 from typing import Optional
-from pinecone import UnauthorizedException
-from superagi.vector_embeddings.pinecone import Pinecone
-from superagi.vector_embeddings.qdrant import Qdrant
-from superagi.vector_embeddings.weaviate import Weaviate
+from superagi.vector_embeddings.pinecone import PineconeVectorEmbeddings
+from superagi.vector_embeddings.qdrant import QdrantVectorEmbeddings
+from superagi.vector_embeddings.weaviate import WeaviateVectorEmbeddings
 from superagi.types.vector_store_types import VectorStoreType
 
 class VectorEmbeddingFactory:
@@ -38,10 +36,10 @@ class VectorEmbeddingFactory:
                 metadata.append(data)
 
         if vector_store == VectorStoreType.PINECONE:
-            return Pinecone(uuid, embeds, metadata)
+            return PineconeVectorEmbeddings(uuid, embeds, metadata)
 
         if vector_store == VectorStoreType.QDRANT:
-            return Qdrant(uuid, embeds, metadata)
+            return QdrantVectorEmbeddings(uuid, embeds, metadata)
         
         if vector_store == VectorStoreType.WEAVIATE:
-            return Weaviate(uuid, embeds, metadata)
+            return WeaviateVectorEmbeddings(uuid, embeds, metadata)

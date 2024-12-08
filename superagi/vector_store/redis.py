@@ -21,7 +21,7 @@ METADATA_KEY = "metadata"
 VECTOR_SCORE_KEY = "vector_score"
 
 
-class Redis(VectorStore):
+class RedisVectorStore(VectorStore):
 
     def delete_embeddings_from_vector_db(self, ids: List[str]) -> None:
         pass

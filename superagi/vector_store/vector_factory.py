@@ -1,15 +1,14 @@
-import pinecone
-from pinecone import UnauthorizedException
 
-from superagi.vector_store.pinecone import Pinecone
-from superagi.vector_store import weaviate
+from pinecone import Pinecone, UnauthorizedException
 from superagi.config.config import get_config
 from superagi.lib.logger import logger
 from superagi.types.vector_store_types import VectorStoreType
+from superagi.vector_store.pinecone import PineconeVectorStore
+from superagi.vector_store import weaviate
+from superagi.vector_store.weaviate import WeaviateVectorStore
 from superagi.vector_store import qdrant
-from superagi.vector_store.redis import Redis
-from superagi.vector_store.embedding.openai import OpenAiEmbedding
-from superagi.vector_store.qdrant import Qdrant
+from superagi.vector_store.qdrant import QdrantVectorStore
+from superagi.vector_store.redis import RedisVectorStore
 
 
 class VectorFactory:
@@ -35,21 +34,21 @@ class VectorFactory:
                 env = get_config("PINECONE_ENVIRONMENT")
                 if api_key is None or env is None:
                     raise ValueError("PineCone API key not found")
-                pinecone.init(api_key=api_key, environment=env)
+                pc = Pinecone(api_key=api_key)
 
-                if index_name not in pinecone.list_indexes():
+                if index_name not in pc.list_indexes():
                     sample_embedding = embedding_model.get_embedding("sample")
                     if "error" in sample_embedding:
                         logger.error(f"Error in embedding model {sample_embedding}")
 
                     # if does not exist, create index
-                    pinecone.create_index(
+                    pc.create_index(
                         index_name,
                         dimension=len(sample_embedding),
                         metric='dotproduct'
                     )
-                index = pinecone.Index(index_name)
-                return Pinecone(index, embedding_model, 'text')
+                index = pc.Index(index_name)
+                return PineconeVectorStore(index, embedding_model, 'text')
             except UnauthorizedException:
                 raise ValueError("PineCone API key not found")
 
@@ -63,7 +62,7 @@ class VectorFactory:
                 url=url,
                 api_key=api_key
             )
-            return weaviate.Weaviate(client, embedding_model, index_name, 'text')
+            return WeaviateVectorStore(client, embedding_model, index_name, 'text')
 
         if vector_store == VectorStoreType.QDRANT:
             client = qdrant.create_qdrant_client()
@@ -71,12 +70,12 @@ class VectorFactory:
             if "error" in sample_embedding:
                 logger.error(f"Error in embedding model {sample_embedding}")
 
-            Qdrant.create_collection(client, index_name, len(sample_embedding))
-            return qdrant.Qdrant(client, embedding_model, index_name)
+            QdrantVectorStore.create_collection(client, index_name, len(sample_embedding))
+            return QdrantVectorStore(client, embedding_model, index_name)
         
         if vector_store == VectorStoreType.REDIS:
             index_name = "super-agent-index1"
-            redis = Redis(index_name, embedding_model)
+            redis = RedisVectorStore(index_name, embedding_model)
             redis.create_index()
             return redis
 
@@ -89,16 +88,16 @@ class VectorFactory:
         
         if vector_store == VectorStoreType.PINECONE:
             try:
-                pinecone.init(api_key = creds["api_key"], environment = creds["environment"])
-                index = pinecone.Index(index_name)
-                return Pinecone(index, embedding_model)
+                pc = Pinecone(api_key = creds["api_key"])
+                index = pc.Index(index_name)
+                return PineconeVectorStore(index, embedding_model)
             except UnauthorizedException:
-                raise ValueError("PineCone API key not found")
+                raise ValueError("Pinecone API key not found")
         
         if vector_store == VectorStoreType.QDRANT:
             try:
                 client = qdrant.create_qdrant_client(creds["api_key"], creds["url"], creds["port"])
-                return qdrant.Qdrant(client, embedding_model, index_name)
+                return QdrantVectorStore(client, embedding_model, index_name)
             except:
                 raise ValueError("Qdrant API key not found")
 

@@ -28,7 +28,7 @@ def create_qdrant_client(api_key: Optional[str] = None, url: Optional[str] = Non
     return qdrant_client
 
 
-class Qdrant(VectorStore):
+class QdrantVectorStore(VectorStore):
     """
     Qdrant vector store.
 
