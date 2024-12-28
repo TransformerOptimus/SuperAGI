@@ -1,6 +1,18 @@
+"""
+SuperAGI Tools Downloader
+
+This script downloads and extracts tools from the SuperAGI-Tools repository on GitHub. 
+It supports both custom tools and tools from the marketplace.
+
+Usage:
+1. Set up the 'tools.json' configuration file with tool names and GitHub URLs.
+2. Run this script to download and extract the tools.
+
+Note: Ensure that the 'SuperAGI-Tools' repository is properly configured in the 'tools.json' file.
+"""
+
 import os
 from pathlib import Path
-
 import requests
 import zipfile
 import json
