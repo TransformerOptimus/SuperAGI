@@ -1,5 +1,5 @@
 import json
-
+import ast
 import requests
 from sqlalchemy import Column, Integer, String, Text
 
@@ -221,6 +221,6 @@ class AgentTemplate(DBBaseModel):
             else:
                 return None
         elif key == "goal" or key == "constraints" or key == "instruction":
-            return eval(value)
+            return ast.literal_eval(value)
         elif key == "tools":
-            return [str(x) for x in eval(value)]
+            return [str(x) for x in ast.literal_eval(value)]
