@@ -148,8 +148,9 @@ def download_file_by_id(resource_id: int,
         raise HTTPException(status_code=400, detail="Associated agent not found!")
 
     # Verify the authenticated user belongs to the same organization as the agent
-    if str(agent.organisation_id) != str(current_user_org_id):
-        raise HTTPException(status_code=403, detail="You don't have permission to access this resource")
+    if hasattr(agent, 'organisation_id'):
+        if str(agent.organisation_id) != str(current_user_org_id):
+            raise HTTPException(status_code=403, detail="You don't have permission to access this resource")
 
     download_file_path = resource.path
     file_name = resource.name
