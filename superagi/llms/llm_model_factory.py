@@ -3,6 +3,9 @@ from superagi.llms.local_llm import LocalLLM
 from superagi.llms.openai import OpenAi
 from superagi.llms.replicate import Replicate
 from superagi.llms.hugging_face import HuggingFace
+from superagi.llms.anthropic import Anthropic
+from superagi.llms.grok import Grok
+from superagi.llms.groq import Groq
 from superagi.models.models_config import ModelsConfig
 from superagi.models.models import Models
 from sqlalchemy.orm import sessionmaker
@@ -37,6 +40,15 @@ def get_model(organisation_id, api_key, model="gpt-3.5-turbo", **kwargs):
     elif provider_name == 'Local LLM':
         print("Provider is Local LLM")
         return LocalLLM(model=model_instance.model_name, context_length=model_instance.context_length)
+    elif provider_name == 'Anthropic':
+        print("Provider is Anthropic")
+        return Anthropic(model=model_instance.model_name, api_key=api_key, **kwargs)
+    elif provider_name == 'Grok':
+        print("Provider is Grok")
+        return Grok(model=model_instance.model_name, api_key=api_key, **kwargs)
+    elif provider_name == 'Groq':
+        print("Provider is Groq")
+        return Groq(model=model_instance.model_name, api_key=api_key, **kwargs)
     else:
         print('Unknown provider.')
 
@@ -51,5 +63,11 @@ def build_model_with_api_key(provider_name, api_key):
         return HuggingFace(api_key=api_key)
     elif provider_name.lower() == 'local llm':
         return LocalLLM(api_key=api_key)
+    elif provider_name.lower() == 'anthropic':
+        return Anthropic(api_key=api_key)
+    elif provider_name.lower() == 'grok':
+        return Grok(api_key=api_key)
+    elif provider_name.lower() == 'groq':
+        return Groq(api_key=api_key)
     else:
         print('Unknown provider.')

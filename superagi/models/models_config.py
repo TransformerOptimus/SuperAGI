@@ -100,7 +100,32 @@ class ModelsConfig(DBBaseModel):
 
     @classmethod
     def storeGptModels(cls, session, organisation_id, model_provider_id, model_api_key):
-        default_models = {"gpt-3.5-turbo": 4032, "gpt-4": 8092, "gpt-3.5-turbo-16k": 16184}
+        # Updated default models with latest GPT models and their token limits as of 2024
+        default_models = {
+            # GPT-3.5 models - corrected token limits
+            "gpt-3.5-turbo": 16385,  # Updated from 4096 to current limit
+            "gpt-3.5-turbo-0125": 16385,
+            "gpt-3.5-turbo-1106": 16385,
+            "gpt-3.5-turbo-instruct": 4097,  # Updated limit
+            # Legacy GPT-3.5 models (for backward compatibility)
+            "gpt-3.5-turbo-16k": 16384,  # Legacy model ID
+            # GPT-4 models - updated token limits
+            "gpt-4": 8192, 
+            "gpt-4-32k": 32768,  # Legacy model, may not be available
+            "gpt-4-0125-preview": 128000,
+            "gpt-4-1106-preview": 128000,
+            "gpt-4-turbo": 128000,
+            "gpt-4-turbo-2024-04-09": 128000,  # Latest turbo version
+            "gpt-4-turbo-preview": 128000,
+            # Latest GPT-4o models
+            "gpt-4o": 128000,
+            "gpt-4o-2024-08-06": 128000,  # Latest version
+            "gpt-4o-mini": 128000,
+            "gpt-4o-mini-2024-07-18": 128000,  # Latest mini version
+            # New reasoning models
+            "o1-preview": 128000,  # New reasoning model
+            "o1-mini": 128000  # New reasoning model (mini version)
+        }
         models = OpenAi(api_key=model_api_key).get_models()
         installed_models = [model[0] for model in session.query(Models.model_name).filter(Models.org_id == organisation_id).all()]
         for model in models:

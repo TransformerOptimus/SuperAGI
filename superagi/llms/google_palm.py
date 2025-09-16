@@ -99,7 +99,14 @@ class GooglePalm(BaseLlm):
             list: The models.
         """
         try:
-            models_supported = ["chat-bison-001"]
+            # Updated model list to include latest Gemini models alongside legacy PaLM
+            models_supported = [
+                # Latest Gemini models (recommended)
+                "gemini-1.5-pro", "gemini-1.5-flash", "gemini-1.0-pro",
+                "gemini-pro", "gemini-pro-vision",
+                # Legacy PaLM models (for backward compatibility) 
+                "chat-bison-001", "text-bison-001"
+            ]
             return models_supported
         except Exception as exception:
             logger.info("Google palm Exception:", exception)

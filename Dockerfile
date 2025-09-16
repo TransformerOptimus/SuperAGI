@@ -1,5 +1,5 @@
 # Stage 1: Compile image
-FROM python:3.10-slim-bullseye AS compile-image
+FROM python:3.12-slim-bullseye AS compile-image
 WORKDIR /app
 
 RUN apt-get update && \
@@ -14,15 +14,15 @@ COPY requirements.txt .
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-RUN python3.10 -c "import nltk; nltk.download('punkt')" && \
-  python3.10 -c "import nltk; nltk.download('averaged_perceptron_tagger')"
+RUN python3.12 -c "import nltk; nltk.download('punkt')" && \
+  python3.12 -c "import nltk; nltk.download('averaged_perceptron_tagger')"
 
 COPY . .
 
 RUN chmod +x ./entrypoint.sh ./wait-for-it.sh ./install_tool_dependencies.sh ./entrypoint_celery.sh
 
 # Stage 2: Build image
-FROM python:3.10-slim-bullseye AS build-image
+FROM python:3.12-slim-bullseye AS build-image
 WORKDIR /app
 
 RUN apt-get update && \

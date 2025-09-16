@@ -8,7 +8,7 @@ WORKDIR /app
 
 RUN apt-get update && apt-get upgrade -y \
     && apt-get install -y git build-essential \
-    python3 python3-pip python3.10-venv  libpq-dev gcc wget \
+    python3 python3-pip python3.12-venv  libpq-dev gcc wget \
     ocl-icd-opencl-dev opencl-headers clinfo \
     libclblast-dev libopenblas-dev \
     && mkdir -p /etc/OpenCL/vendors && echo "libnvidia-opencl.so.1" > /etc/OpenCL/vendors/nvidia.icd
@@ -23,8 +23,8 @@ RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Running nltk setup as you mentioned
-RUN python3.10 -c "import nltk; nltk.download('punkt')" && \
-    python3.10 -c "import nltk; nltk.download('averaged_perceptron_tagger')"
+RUN python3.12 -c "import nltk; nltk.download('punkt')" && \
+    python3.12 -c "import nltk; nltk.download('averaged_perceptron_tagger')"
 
 # Copy the application code
 COPY . .

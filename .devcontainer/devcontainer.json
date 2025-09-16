@@ -1,0 +1,75 @@
+{
+    "name": "SuperAGI Development",
+    "dockerComposeFile": "../docker-compose-dev.yaml",
+    "service": "superagi-dev",
+    "workspaceFolder": "/workspace",
+    
+    "features": {
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+        "ghcr.io/devcontainers/features/github-cli:1": {},
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "20"
+        }
+    },
+
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "python.defaultInterpreterPath": "/opt/venv/bin/python",
+                "python.terminal.activateEnvironment": false,
+                "python.linting.enabled": true,
+                "python.linting.ruffEnabled": true,
+                "python.formatting.provider": "none",
+                "python.testing.pytestEnabled": true,
+                "python.testing.autoTestDiscoverOnSaveEnabled": true,
+                "editor.formatOnSave": true,
+                "editor.codeActionsOnSave": {
+                    "source.organizeImports": true,
+                    "source.fixAll": true
+                },
+                "[python]": {
+                    "editor.defaultFormatter": "charliermarsh.ruff"
+                }
+            },
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "charliermarsh.ruff",
+                "ms-python.mypy-type-checker",
+                "ms-vscode.vscode-docker",
+                "bradlc.vscode-tailwindcss",
+                "esbenp.prettier-vscode",
+                "ms-vscode.vscode-json",
+                "redhat.vscode-yaml",
+                "GitHub.copilot",
+                "ms-azuretools.vscode-docker"
+            ]
+        }
+    },
+
+    "forwardPorts": [8001, 3000, 5432, 6379],
+    "portsAttributes": {
+        "8001": {
+            "label": "SuperAGI API",
+            "onAutoForward": "notify"
+        },
+        "3000": {
+            "label": "Frontend",
+            "onAutoForward": "notify"
+        },
+        "5432": {
+            "label": "PostgreSQL",
+            "onAutoForward": "silent"
+        },
+        "6379": {
+            "label": "Redis",
+            "onAutoForward": "silent"
+        }
+    },
+
+    "postCreateCommand": "pip install -e . && pip install -r requirements-dev.txt && pre-commit install",
+    "postStartCommand": "cd gui && npm install",
+
+    "remoteUser": "vscode",
+    "containerUser": "vscode"
+}

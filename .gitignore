@@ -20,4 +20,45 @@ celerybeat-schedule
 superagi/tools/marketplace_tools/
 superagi/tools/external_tools/
 tests/unit_tests/resource_manager/test_path
-/tools.json
+./tools.json
+
+# Additional modern Python patterns
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+htmlcov/
+coverage.xml
+*.prof
+*.lprof
+bandit-report.json
+*.tmp
+*.temp
+.env.local
+.env.production
+*.pem
+*.key
+*.cert
+
+# Node.js / Frontend patterns
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+out/
+dist/
+.next/
+
+# IDE patterns
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS patterns
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Documentation builds
+docs/_build/
+site/

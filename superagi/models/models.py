@@ -132,7 +132,7 @@ class Models(DBBaseModel):
             return model  # Return error message if model not found
 
         # Check the 'provider' from ModelsConfig table
-        if not end_point and model["provider"] not in ['OpenAI', 'Google Palm', 'Replicate','Local LLM']:
+        if not end_point and model["provider"] not in ['OpenAI', 'Google Palm', 'Replicate', 'Local LLM', 'Anthropic', 'Grok', 'Groq']:
             return {"error": "End Point is empty or undefined"}
 
         if context_length is None: 

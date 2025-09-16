@@ -19,19 +19,19 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
         ref: ${{ github.event.pull_request.head.ref }}
         repository: ${{ github.event.pull_request.head.repo.full_name }}
 
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v3
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
       with:
-        python-version: "3.9"
+        python-version: "3.12"
 
     - name: Cache Python dependencies
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
@@ -41,14 +41,14 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest
+        pip install ruff pytest pytest-cov
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Lint with flake8
+    - name: Lint with ruff
       run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        # Check for syntax errors and undefined names
+        ruff check . --select=F,E9,W605 --show-files --show-source
+        # Check all rules with non-zero exit code
+        ruff check . --statistics
  
   test:
 
@@ -65,11 +65,11 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        python-version: ["3.9"]
+        python-version: ["3.12"]
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.ref }}
@@ -81,13 +81,13 @@ jobs:
           git config --global user.name "SuperAGI-Bot"
           git config --global user.email "github-bot@superagi.com"
           
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v3
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
+          python-version: "3.12"
 
       - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
             path: ~/.cache/pip
             key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
@@ -97,7 +97,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 pytest
+          pip install ruff pytest pytest-cov
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           
       - name: Test with pytest

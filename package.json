@@ -4,3 +4,20 @@
     "react-toastify": "^9.1.3"
   }
 }
+{
+  "engines": {
+    "npm": "~1.0.20"
+  }
+}
+{
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  }
+}
+"scripts": {
+  "build:digitalocean": "npm install --production=false && npm run build && npm ci",
+  ...
+}

@@ -1,0 +1,186 @@
+version: '3.8'
+
+services:
+  # SuperAGI Backend (Development)
+  superagi-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: compile-image
+    container_name: superagi-backend-dev
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./:/workspace
+      - /workspace/.git
+      - /workspace/node_modules
+      - /workspace/gui/node_modules
+      - /workspace/gui/.next
+    environment:
+      - ENV=DEV
+      - DB_HOST=super__postgres
+      - DB_USERNAME=superagi
+      - DB_PASSWORD=password
+      - DB_NAME=super_agi_main
+      - REDIS_URL=super__redis:6379
+      - PYTHONPATH=/workspace
+      - WATCHDOG_TIMEOUT=30
+    command: >
+      sh -c "
+        cd /workspace &&
+        pip install -r requirements-dev.txt &&
+        python -m uvicorn main:app --host 0.0.0.0 --port 8001 --reload --log-level info
+      "
+    depends_on:
+      - super__postgres
+      - super__redis
+    networks:
+      - superagi_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # SuperAGI Frontend (Development)
+  superagi-frontend-dev:
+    image: node:20-alpine
+    container_name: superagi-frontend-dev
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./gui:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:8001
+      - WATCHPACK_POLLING=true
+    command: >
+      sh -c "
+        npm ci &&
+        npm run dev
+      "
+    networks:
+      - superagi_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PostgreSQL Database
+  super__postgres:
+    image: postgres:16-alpine
+    container_name: superagi-postgres-dev
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: super_agi_main
+      POSTGRES_USER: superagi
+      POSTGRES_PASSWORD: password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    networks:
+      - superagi_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U superagi -d super_agi_main"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  super__redis:
+    image: redis:7-alpine
+    container_name: superagi-redis-dev
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    networks:
+      - superagi_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Celery Worker (Development)
+  super__celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: compile-image
+    container_name: superagi-celery-dev
+    volumes:
+      - ./:/workspace
+    environment:
+      - ENV=DEV
+      - DB_HOST=super__postgres
+      - DB_USERNAME=superagi
+      - DB_PASSWORD=password
+      - DB_NAME=super_agi_main
+      - REDIS_URL=super__redis:6379
+      - PYTHONPATH=/workspace
+    command: >
+      sh -c "
+        cd /workspace &&
+        celery -A superagi.worker worker --loglevel=info --concurrency=4
+      "
+    depends_on:
+      - super__postgres
+      - super__redis
+    networks:
+      - superagi_network
+    restart: unless-stopped
+
+  # pgAdmin (Database Management)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: superagi-pgadmin-dev
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@superagi.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - superagi_network
+    restart: unless-stopped
+
+  # Redis Commander (Redis Management)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: superagi-redis-commander-dev
+    ports:
+      - "8081:8081"
+    environment:
+      REDIS_HOSTS: local:super__redis:6379
+    networks:
+      - superagi_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  superagi_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
