@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, Header, Security, status
+from fastapi import Depends, HTTPException, Header, Security, status,Request
 from fastapi.security import APIKeyHeader
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
@@ -9,6 +9,7 @@ from superagi.models.user import User
 from superagi.models.api_key import ApiKey
 from typing import Optional
 from sqlalchemy import or_
+#from fastapi import Request
 
 
 def check_auth(Authorize: AuthJWT = Depends()):
@@ -41,10 +42,11 @@ def get_user_organisation(Authorize: AuthJWT = Depends(check_auth)):
     if user is None:
         raise HTTPException(status_code=401, detail="Unauthenticated")
     organisation = db.session.query(Organisation).filter(Organisation.id == user.organisation_id).first()
+    
     return organisation
 
 
-def get_current_user(Authorize: AuthJWT = Depends(check_auth), request: Request = Depends()):
+def get_current_user(request: Request,Authorize: AuthJWT = Depends(check_auth)):
     env = get_config("ENV", "DEV")
 
     if env == "DEV":
@@ -64,6 +66,9 @@ def get_current_user(Authorize: AuthJWT = Depends(check_auth), request: Request 
 
     # Query the User table to find the user by their email
     user = db.session.query(User).filter(User.email == email).first()
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
     return user
 
 api_key_header = APIKeyHeader(name="X-API-Key")
@@ -91,4 +96,7 @@ def get_organisation_from_api_key(api_key: str = Security(api_key_header)) -> Or
         )
 
     organisation = db.session.query(Organisation).filter(Organisation.id == query_result.org_id).first()
+    if organisation is None:
+        raise HTTPException(status_code=404, detail="Organisation not found")
+
     return  organisation
