@@ -59,12 +59,19 @@ class ToolBuilder:
         """
         file_name = self.__validate_filename(filename=tool.file_name)
 
-        tools_dir=""
+        if tool is None:
+            raise ValueError("Tool object is None")
+
+        tools_dir = ""
         tool_paths = ["superagi/tools", "superagi/tools/external_tools", "superagi/tools/marketplace_tools"]
         for tool_path in tool_paths:
             if os.path.exists(os.path.join(os.getcwd(), tool_path) + '/' + tool.folder_name):
                 tools_dir = tool_path
                 break
+        if not tools_dir:
+            raise ValueError(
+                f"Tool directory not found for tool: {tool.folder_name}. Searched in: {', '.join(tool_paths)}"
+            )
         parsed_tools_dir = tools_dir.rstrip("/")
         module_name = ".".join(parsed_tools_dir.split("/") + [tool.folder_name, file_name])
 
