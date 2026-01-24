@@ -49,8 +49,7 @@ class UserIn(UserBase):
 
 # CRUD Operations
 @router.post("/add", response_model=UserOut, status_code=201)
-def create_user(user: UserIn,
-                Authorize: AuthJWT = Depends(check_auth)):
+def create_user(user: UserIn, Authorize: AuthJWT = Depends(check_auth)):
     """
     Create a new user.
 
@@ -62,21 +61,29 @@ def create_user(user: UserIn,
 
     Raises:
         HTTPException (status_code=400): If there is an issue creating the user.
-
+        HTTPException (status_code=422): If required fields are missing or incorrectly formatted.
     """
-
+    logger.info("Received user data: %s", user)
+    
+    # Validate incoming request data
+    if not user.name or not user.email or not user.password:
+        logger.error("Missing required fields: name, email, or password")
+        raise HTTPException(status_code=422, detail="Missing required fields: name, email, or password")
+    
     db_user = db.session.query(User).filter(User.email == user.email).first()
     if db_user:
         return db_user
+    
     db_user = User(name=user.name, email=user.email, password=user.password, organisation_id=user.organisation_id)
     db.session.add(db_user)
     db.session.commit()
     db.session.flush()
+    
     organisation = Organisation.find_or_create_organisation(db.session, db_user)
     Project.find_or_create_default_project(db.session, organisation.id)
-    logger.info("User created", db_user)
-
-    #adding local llm configuration
+    logger.info("User created: %s", db_user)
+    
+    # Adding local LLM configuration
     ModelsConfig.add_llm_config(db.session, organisation.id)
     
     return db_user

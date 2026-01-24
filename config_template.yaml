@@ -55,8 +55,8 @@ GITHUB_CLIENT_ID:
 GITHUB_CLIENT_SECRET:
 FRONTEND_URL: "http://localhost:3000"
 
-#ENCRPYTION KEY
-ENCRYPTION_KEY: secret
+#ENCRYPTION KEY, Replace this with your own key for production
+ENCRYPTION_KEY: abcdefghijklmnopqrstuvwxyz123456
 
 #WEAVIATE
 
@@ -122,3 +122,4 @@ ENGINE_ID: "stable-diffusion-xl-beta-v2-2-2"
 ## To use Qdrant for vector store
 #QDRANT_HOST_NAME: YOUR_QDRANT_HOST_NAME
 #QDRANT_PORT: YOUR_QDRANT_PORT
+#GPU_LAYERS: GPU LAYERS THAT YOU WANT TO OFFLOAD TO THE GPU WHILE USING LOCAL LLMS

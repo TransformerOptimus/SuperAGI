@@ -1,14 +1,27 @@
+import base64
+
 from cryptography.fernet import Fernet, InvalidToken, InvalidSignature
 from superagi.config.config import get_config
+from superagi.lib.logger import logger
 # Generate a key
 # key = Fernet.generate_key()
 
 key = get_config("ENCRYPTION_KEY")
 if key is None:
     raise Exception("Encryption key not found in config file.")
+
+if len(key) != 32:
+    raise ValueError("Encryption key must be 32 bytes long.")
+
+# Encode the key to UTF-8
 key = key.encode(
     "utf-8"
 )
+
+# base64 encode the key
+key = base64.urlsafe_b64encode(key)
+
+# Create a cipher suite
 cipher_suite = Fernet(key)
 
 
@@ -41,7 +54,7 @@ def decrypt_data(encrypted_data):
 
 
 def is_encrypted(value):
-    key = b'e3mp0E0Jr3jnVb96A31_lKzGZlSTPIp4-rPaVseyn58='
+    #key = get_config("ENCRYPTION_KEY")
     try:
         f = Fernet(key)
         f.decrypt(value)

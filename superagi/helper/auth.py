@@ -44,19 +44,27 @@ def get_user_organisation(Authorize: AuthJWT = Depends(check_auth)):
     return organisation
 
 
-def get_current_user(Authorize: AuthJWT = Depends(check_auth)):
+def get_current_user(Authorize: AuthJWT = Depends(check_auth), request: Request = Depends()):
     env = get_config("ENV", "DEV")
 
     if env == "DEV":
         email = "super6@agi.com"
     else:
-        # Retrieve the email of the logged-in user from the JWT token payload
-        email = Authorize.get_jwt_subject()
+        # Check for HTTP basic auth headers
+        auth_header = request.headers.get('Authorization')
+        if auth_header and auth_header.startswith('Basic '):
+            import base64
+            auth_decoded = base64.b64decode(auth_header.split(' ')[1]).decode('utf-8')
+            username, password = auth_decoded.split(':')
+            # Assuming username is the email
+            email = username
+        else:
+            # Retrieve the email of the logged-in user from the JWT token payload
+            email = Authorize.get_jwt_subject()
 
     # Query the User table to find the user by their email
     user = db.session.query(User).filter(User.email == email).first()
     return user
-
 
 api_key_header = APIKeyHeader(name="X-API-Key")
 
