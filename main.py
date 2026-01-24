@@ -9,9 +9,14 @@ from fastapi_sqlalchemy import DBSessionMiddleware, db
 from pydantic import BaseModel
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from typing import Optional
 
 import superagi
 from datetime import timedelta, datetime
+
+# Config hot-reload imports
+from superagi.helper.config_manager import ConfigManager
+from superagi.helper.config_watcher import ConfigWatcher, WATCHDOG_AVAILABLE
 from superagi.agent.workflow_seed import IterationWorkflowSeed, AgentWorkflowSeed
 from superagi.config.config import get_config
 from superagi.controllers.agent import router as agent_router
@@ -59,6 +64,19 @@ from superagi.models.workflows.agent_workflow import AgentWorkflow
 from superagi.models.workflows.iteration_workflow import IterationWorkflow
 from superagi.models.workflows.iteration_workflow_step import IterationWorkflowStep
 from urllib.parse import urlparse
+
+# Global config watcher instance
+_config_watcher: Optional[ConfigWatcher] = None
+_last_config_reload_time: Optional[datetime] = None
+
+
+def on_config_reload() -> None:
+    """Callback function invoked when configuration is reloaded."""
+    global _last_config_reload_time
+    _last_config_reload_time = datetime.now()
+    logger.info(f"Configuration reloaded at {_last_config_reload_time}")
+
+
 app = FastAPI()
 
 db_host = get_config('DB_HOST', 'super__postgres')
@@ -195,6 +213,21 @@ def replace_old_iteration_workflows(session):
 async def startup_event():
     # Perform startup tasks here
     logger.info("Running Startup tasks")
+
+    # Initialize config watcher for hot-reload support
+    global _config_watcher, _last_config_reload_time
+    try:
+        _config_watcher = ConfigWatcher()
+        _config_watcher.register_callback(on_config_reload)
+        if _config_watcher.start():
+            _last_config_reload_time = datetime.now()
+            logger.info("Config watcher started successfully")
+        else:
+            logger.warning("Config watcher failed to start - hot-reload disabled")
+    except Exception as e:
+        logger.error(f"Failed to initialize config watcher: {e}")
+        _config_watcher = None
+
     Session = sessionmaker(bind=engine)
     session = Session()
     default_user = session.query(User).filter(User.email == "super6@agi.com").first()
@@ -245,6 +278,90 @@ async def startup_event():
     else:
         register_toolkit_for_master_organisation()
     session.close()
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Gracefully shutdown the application."""
+    global _config_watcher
+    logger.info("Running shutdown tasks")
+
+    # Stop config watcher
+    if _config_watcher is not None:
+        try:
+            _config_watcher.stop()
+            logger.info("Config watcher stopped successfully")
+        except Exception as e:
+            logger.error(f"Error stopping config watcher: {e}")
+        _config_watcher = None
+
+    logger.info("Shutdown complete")
+
+
+@app.get("/api/v1/config/status")
+async def get_config_status():
+    """
+    Get the current status of the configuration system.
+
+    Returns JSON with watcher status and last reload time.
+    """
+    global _config_watcher, _last_config_reload_time
+
+    status_info = {
+        "watchdog_available": WATCHDOG_AVAILABLE,
+        "watcher_running": False,
+        "last_reload_time": None,
+        "config_path": None,
+    }
+
+    if _config_watcher is not None:
+        watcher_status = _config_watcher.get_status()
+        status_info["watcher_running"] = watcher_status.get("running", False)
+        status_info["config_path"] = watcher_status.get("config_path")
+
+    if _last_config_reload_time is not None:
+        status_info["last_reload_time"] = _last_config_reload_time.isoformat()
+
+    return status_info
+
+
+@app.post("/api/v1/config/reload")
+async def reload_config():
+    """
+    Manually trigger a configuration reload.
+
+    Returns success or failure status.
+    """
+    global _last_config_reload_time
+
+    try:
+        config_manager = ConfigManager()
+        success = config_manager.reload_config()
+
+        if success:
+            _last_config_reload_time = datetime.now()
+            return {
+                "status": "success",
+                "message": "Configuration reloaded successfully",
+                "reload_time": _last_config_reload_time.isoformat()
+            }
+        else:
+            return JSONResponse(
+                status_code=500,
+                content={
+                    "status": "error",
+                    "message": "Configuration reload failed"
+                }
+            )
+    except Exception as e:
+        logger.error(f"Error reloading configuration: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "status": "error",
+                "message": f"Configuration reload failed: {str(e)}"
+            }
+        )
 
 
 @app.post('/login')
