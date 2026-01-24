@@ -270,7 +270,7 @@ export default function App() {
   return (
     <div className="app">
       <Head>
-        <title>SuperAGI</title>
+        <title>SparkAGI</title>
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet"/>
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
