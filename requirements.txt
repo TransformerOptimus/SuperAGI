@@ -133,6 +133,7 @@ urllib3==1.26.16
 uvicorn==0.22.0
 vine==5.0.0
 w3lib==2.1.1
+watchdog>=3.0.0
 watchfiles==0.19.0
 wcwidth==0.2.6
 weaviate-client==3.20.1
