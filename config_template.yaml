@@ -19,6 +19,8 @@ RESOURCES_SUMMARY_MODEL_NAME: "gpt-3.5-turbo"
 MAX_TOOL_TOKEN_LIMIT: 800
 MAX_MODEL_TOKEN_LIMIT: 4032 # set to 2048 for llama
 
+BoCha_API_KEY: YOUR_BoCha_API_KEY
+
 #DATABASE INFO
 # redis details
 DB_NAME: super_agi_main
