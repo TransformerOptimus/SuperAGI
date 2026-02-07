@@ -27,7 +27,7 @@ class WebHookManager:
                 try:
                     request = requests.post(webhook_obj.url.strip(), data=json.dumps(webhook_obj_body), headers=webhook_obj.headers)
                 except Exception as e:
-                    logger.error(f"Exception occured in webhooks {e}")
+                    logger.error(f"Exception occurred in webhooks {e}")
                     error=str(e)
                 if request is not None and request.status_code not in [200,201] and error is None:
                     error=request.text

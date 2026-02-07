@@ -175,7 +175,7 @@ def get_agent_execution_feed(agent_execution_id: int,
     for feed in feeds:
         if feed.error_message:
             if (agent_execution.last_shown_error_id is None) or (feed.id > agent_execution.last_shown_error_id):
-                #new error occured
+                #new error occurred
                 error = feed.error_message
                 agent_execution.last_shown_error_id = feed.id
                 agent_execution.status = "ERROR_PAUSED"
