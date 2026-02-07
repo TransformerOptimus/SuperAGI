@@ -70,7 +70,7 @@ def test_chat_completion_retry_timeout_error(mock_openai, mock_wait_random_expon
     messages = [{"role": "system", "content": "You are a helpful assistant."}]
     max_tokens = 100
 
-    mock_openai.ChatCompletion.create.side_effect = openai.error.Timeout("Timeout occured")
+    mock_openai.ChatCompletion.create.side_effect = openai.error.Timeout("Timeout occurred")
 
     # Mock sleep time
     mock_wait_random_exponential.return_value = 0.1
@@ -79,7 +79,7 @@ def test_chat_completion_retry_timeout_error(mock_openai, mock_wait_random_expon
     result = openai_instance.chat_completion(messages, max_tokens)
 
     # Assert
-    assert result == {"error": "ERROR_OPENAI", "message": "Open ai exception: Timeout occured"}
+    assert result == {"error": "ERROR_OPENAI", "message": "Open ai exception: Timeout occurred"}
     assert mock_openai.ChatCompletion.create.call_count == MAX_RETRY_ATTEMPTS
 
 
