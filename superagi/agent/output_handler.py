@@ -109,8 +109,7 @@ class ToolOutputHandler:
 
         excluded_tools = [ToolExecutor.FINISH, '', None]
 
-        if self.agent_config["permission_type"].upper() == "RESTRICTED" and action.name not in excluded_tools and \
-                tools.get(action.name) and tools[action.name].permission_required:
+        if self.agent_config["permission_type"].upper() == "RESTRICTED" and action.name not in excluded_tools and \\n                tools.get(action.name) and tools[action.name].permission_required:
             new_agent_execution_permission = AgentExecutionPermission(
                 agent_execution_id=self.agent_execution_id,
                 status="PENDING",
@@ -146,7 +145,7 @@ class TaskOutputHandler:
 
     def handle(self, session, assistant_reply):
         assistant_reply = JsonCleaner.extract_json_array_section(assistant_reply)
-        tasks = eval(assistant_reply)
+        tasks = json.loads(assistant_reply)
         tasks = np.array(tasks).flatten().tolist()
         for task in reversed(tasks):
             self.task_queue.add_task(task)
@@ -177,7 +176,7 @@ class ReplaceTaskOutputHandler:
 
     def handle(self, session, assistant_reply):
         assistant_reply = JsonCleaner.extract_json_array_section(assistant_reply)
-        tasks = eval(assistant_reply)
+        tasks = json.loads(assistant_reply)
         self.task_queue.clear_tasks()
         for task in reversed(tasks):
             self.task_queue.add_task(task)
