@@ -1,6 +1,8 @@
 {
   "dependencies": {
+    "artificialintelligence": "^0.0.1",
     "axios": "^1.4.0",
+    "copilot": "^0.5.1",
     "react-toastify": "^9.1.3"
   }
 }
