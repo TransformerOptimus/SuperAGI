@@ -13,6 +13,18 @@ class FileManager:
         self.session = session
         self.agent_id = agent_id
         self.agent_execution_id = agent_execution_id
+    
+    def _validate_safe_path(self, final_path: str):
+        """
+        Ensure the resolved file path stays inside the allowed resource directory.
+        Prevents path traversal vulnerabilities.
+        """
+        base_dir = os.path.abspath(os.path.dirname(final_path))
+        target_path = os.path.abspath(final_path)
+
+        if os.path.commonpath([base_dir, target_path]) != base_dir:
+            raise Exception("SecurityError: Attempted path traversal outside resource directory")
+        
     def write_binary_file(self, file_name: str, data):
         if self.agent_id is not None:
             final_path = ResourceHelper.get_agent_write_resource_path(file_name,
@@ -24,6 +36,7 @@ class FileManager:
         else:
             final_path = ResourceHelper.get_resource_path(file_name)
         try:
+            self._validate_safe_path(final_path)
             with open(final_path, mode="wb") as img:
                 img.write(data)
                 img.close()
@@ -56,6 +69,7 @@ class FileManager:
         else:
             final_path = ResourceHelper.get_resource_path(file_name)
         try:
+            self._validate_safe_path(final_path)
             with open(final_path, mode="w") as file:
                 file.write(content)
                 file.close()
@@ -75,6 +89,7 @@ class FileManager:
         else:
             final_path = ResourceHelper.get_resource_path(file_name)
         try:
+            self._validate_safe_path(final_path)
             with open(final_path, mode="w", newline="") as file:
                 writer = csv.writer(file, lineterminator="\n")
                 writer.writerows(csv_data)
