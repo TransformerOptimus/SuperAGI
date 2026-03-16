@@ -1,4 +1,5 @@
 import re
+import os 
 from typing import Type, Optional, List
 
 from pydantic import BaseModel, Field
@@ -95,6 +96,31 @@ class CodingTool(BaseTool):
             file_name = re.sub(r'[<>"|?*]', "", match.group(1))
             if not file_name[0].isalnum():
                 file_name = file_name[1:-1]
+            
+            # Block path traversal attempts
+            if ".." in file_name:
+                logger.error(f"Blocked path traversal attempt: {file_name}")
+                return "Error: Invalid filename (path traversal detected)"
+            
+            # Block absolute paths
+            if file_name.startswith("/") or file_name.startswith("\\"):
+                logger.error(f"Blocked absolute path attempt: {file_name}")
+                return "Error: Invalid filename (absolute paths not allowed)"
+            
+            # Allow only safe filename characters
+            if not re.match(r'^[a-zA-Z0-9_.\-/]+$', file_name):
+                logger.error(f"Blocked unsafe filename: {file_name}")
+                return "Error: Filename contains unsafe characters"
+            
+            # Normalize path to remove tricks like a/../b
+            normalized_path = os.path.normpath(file_name)
+
+            # Ensure normalized path still doesn't escape directory
+            if normalized_path.startswith(".."):
+                logger.error(f"Blocked normalized path traversal: {file_name}")
+                return "Error: Invalid filename after normalization"
+
+            file_name = normalized_path
 
             # Get the code
             code = match.group(2)
