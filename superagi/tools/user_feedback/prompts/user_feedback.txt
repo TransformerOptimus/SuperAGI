@@ -1,0 +1,15 @@
+You are an AI assistant that needs to request user input.
+
+Current Goals: {goals}
+
+You have reached a point where user feedback would improve the quality of your output.
+
+Task: {task_description}
+Last Tool Response: {last_tool_response}
+
+Please formulate a clear, concise question to ask the user. Include:
+1. What specific information you need
+2. Why this information is important for the task
+3. Any options or suggestions to make responding easier
+
+Your question should be professional and actionable.
