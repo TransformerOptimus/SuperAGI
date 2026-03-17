@@ -10,6 +10,18 @@ from superagi.types.storage_types import StorageType
 
 
 class ResourceHelper:
+    @staticmethod
+    def _secure_path_join(base_dir: str, file_name: str):
+        """
+        Safely join paths and prevent path traversal attacks.
+        """
+        base_dir = os.path.abspath(base_dir)
+        final_path = os.path.abspath(os.path.join(base_dir, file_name))
+
+        if os.path.commonpath([base_dir, final_path]) != base_dir:
+            raise Exception("SecurityError: Path traversal detected")
+
+        return final_path
     @classmethod
     def make_written_file_resource(cls, file_name: str, agent: Agent, agent_execution: AgentExecution, session):
         """
@@ -91,13 +103,15 @@ class ResourceHelper:
 
     @classmethod
     def get_resource_path(cls, file_name: str):
-        """Get final path of the resource.
-
+        """
+        Get the full path for a resource file in the root output directory.
         Args:
             file_name (str): The name of the file.
+        Returns:
+            str: The absolute path where the resource file should be stored.
         """
-        return ResourceHelper.get_root_output_dir() + file_name
-
+        root_dir = ResourceHelper.get_root_output_dir()
+        return ResourceHelper._secure_path_join(root_dir, file_name)
     @classmethod
     def get_root_output_dir(cls):
         """Get root dir of the resource.
@@ -126,12 +140,14 @@ class ResourceHelper:
 
     @classmethod
     def get_agent_write_resource_path(cls, file_name: str, agent: Agent, agent_execution: AgentExecution):
-        """Get agent resource path to write files
-
+        """
+        Get the full path for writing a resource file for a specific agent execution.
         Args:
             file_name (str): The name of the file.
-            agent (Agent): The unique identifier of the agent.
-            agent_execution (AgentExecution): The unique identifier of the agent.
+            agent (Agent): The agent associated with the file.
+            agent_execution (AgentExecution): The agent execution context.
+        Returns:
+            str: The absolute path where the file should be written.
         """
         root_dir = ResourceHelper.get_root_output_dir()
         if agent is not None and "{agent_id}" in root_dir:
@@ -140,7 +156,7 @@ class ResourceHelper:
                 root_dir = ResourceHelper.get_formatted_agent_execution_level_path(agent_execution, root_dir)
             directory = os.path.dirname(root_dir)
             os.makedirs(directory, exist_ok=True)
-        final_path = root_dir + file_name
+        final_path = ResourceHelper._secure_path_join(root_dir, file_name)
         return final_path
 
     @staticmethod
