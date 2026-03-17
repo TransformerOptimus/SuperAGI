@@ -106,6 +106,6 @@ class HuggingFace(BaseLlm):
 
     def verify_end_point(self):
         data = json.dumps({"inputs": "validating end_point"})
-        response = requests.post(self.end_point, headers=self.headers, data=data)
+        response = requests.post(self.end_point, headers=self.headers, data=data, timeout=(3, 10))
 
         return response.json()
