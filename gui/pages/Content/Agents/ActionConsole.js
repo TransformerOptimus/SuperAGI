@@ -4,53 +4,70 @@ import Image from 'next/image';
 import {updatePermissions} from '@/pages/api/DashboardService';
 import {formatTimeDifference} from '@/utils/utils';
 
-function ActionBox({action, index, denied, reasons, handleDeny, handleSelection, setReasons}) {
-  const isDenied = denied[index];
+function ActionBox({
+  action,
+  deniedById,
+  reasonsById,
+  errorById,
+  processingIds,
+  handleDeny,
+  handleSelection,
+  handleReasonChange,
+}) {
+  const isDenied = deniedById[action.id];
+  const isProcessing = processingIds.includes(action.id);
+  const feedbackInputId = `permission-feedback-${action.id}`;
 
   return (
+    
     <div key={action.id} className={styles.history_box}
          style={{background: '#272335', padding: '16px', cursor: 'default'}}>
       <div style={{display: 'flex', flexDirection: 'column'}}>
         {action.question && (<div className={styles.feed_title}>{action.question}</div>)}
-        {!action.question && (<div>Tool <b>{action.tool_name}</b> is seeking for Permissions</div>)}
+        {!action.question && (<div>Tool <b>{action.tool_name}</b> is requesting permissions</div>)}
 
         {isDenied && (
           <div style={{marginTop: '26px'}}>
-            <div>Provide Feedback <span style={{color: '#888888'}}>(Optional)</span></div>
-            <input style={{marginTop: '6px'}} type="text" value={reasons[index]} placeholder="Enter your input here"
+            <label htmlFor={feedbackInputId}>Provide Feedback <span style={{color: '#888888'}}>(Optional)</span></label>
+            <input id={feedbackInputId} style={{marginTop: '6px'}} type="text" value={reasonsById[action.id] || ''}
+                   placeholder="Enter your input here"
                    className="input_medium"
-                   onChange={(e) => {
-                     const newReasons = [...reasons];
-                     newReasons[index] = e.target.value;
-                     setReasons(newReasons);
-                   }}/>
+                   onChange={(e) => handleReasonChange(action.id, e.target.value)}/>
           </div>
         )}
         {isDenied ? (
           <div style={{display: 'inline-flex', gap: '8px'}}>
-            <button onClick={() => handleDeny(index)} className="secondary_button mt_16" style={{paddingLeft: '10px'}}>
+            <button type="button" onClick={() => handleDeny(action.id)} disabled={isProcessing}
+                    aria-label="Go back from deny action" className="secondary_button mt_16"
+                    style={{paddingLeft: '10px'}}>
               <Image width={12} height={12} src="/images/undo.svg" alt="check-icon"/>
               <span className={styles.text_12_n}>Go Back</span>
             </button>
-            <button onClick={() => handleSelection(index, false, action.id)} className="secondary_button mt_16"
+            <button type="button" onClick={() => handleSelection(action.id, false)} disabled={isProcessing}
+                    aria-label="Confirm deny action"
+                    className="secondary_button mt_16"
                     style={{background: 'transparent', border: 'none'}}>
-              <span className={styles.text_12_n}>Proceed to Deny</span>
+              <span className={styles.text_12_n}>{isProcessing ? 'Updating...' : 'Proceed to Deny'}</span>
             </button>
           </div>
         ) : (
           <div style={{display: 'inline-flex', gap: '8px'}}>
-            <button onClick={() => handleSelection(index, true, action.id)} className="secondary_button mt_16"
+            <button type="button" onClick={() => handleSelection(action.id, true)} disabled={isProcessing}
+                    aria-label="Approve action"
+                    className="secondary_button mt_16"
                     style={{paddingLeft: '10px'}}>
               <Image width={12} height={12} src="/images/check.svg" alt="check-icon"/>
-              <span className={styles.text_12_n}>Approve</span>
+              <span className={styles.text_12_n}>{isProcessing ? 'Updating...' : 'Approve'}</span>
             </button>
-            <button onClick={() => handleDeny(index)} className="secondary_button mt_16"
+            <button type="button" onClick={() => handleDeny(action.id)} disabled={isProcessing}
+                    aria-label="Deny action" className="secondary_button mt_16"
                     style={{background: 'transparent', border: 'none'}}>
               <Image width={16} height={16} src="/images/close.svg" alt="close-icon"/>
               <span className={styles.text_12_n}>Deny</span>
             </button>
           </div>
         )}
+        {errorById[action.id] && <div style={{color: '#F78166', marginTop: '8px'}}>{errorById[action.id]}</div>}
       </div>
       <div style={{display: 'flex', alignItems: 'center', paddingLeft: '0', paddingBottom: '0'}}
            className={styles.tab_text}>
@@ -68,7 +85,7 @@ function HistoryBox({action}) {
     <div key={action.id} className={styles.history_box}
          style={{background: '#272335', padding: '16px', cursor: 'default'}}>
       <div style={{display: 'flex', flexDirection: 'column'}}>
-        <div>Permissions for <b>{action.tool_name}</b> was::</div>
+        <div>Permission for <b>{action.tool_name}</b> was:</div>
         {action.status && action.status === 'APPROVED' ? (
           <button className="history_permission mt_16">
             <Image width={12} height={12} src="/images/check.svg" alt="check-icon"/>
@@ -82,7 +99,7 @@ function HistoryBox({action}) {
         )}
         {action.user_feedback != null &&
           <div style={{display: 'flex', flexDirection: 'column'}}>
-            <div className="mt_16" style={{color: '#888888'}}>FeedBack</div>
+            <div className="mt_16" style={{color: '#888888'}}>Feedback</div>
             <div className="mt_6 mb_8">{action.user_feedback}</div>
           </div>
         }
@@ -98,53 +115,93 @@ function HistoryBox({action}) {
   )
 }
 
-export default function ActionConsole({actions, pendingPermission, setPendingPermissions}) {
+export default function ActionConsole({actions, setPendingPermissions}) {
   const [hiddenActions, setHiddenActions] = useState([]);
-  const [denied, setDenied] = useState([]);
-  const [reasons, setReasons] = useState([]);
-  const [localActionIds, setLocalActionIds] = useState([]);
+  const [deniedById, setDeniedById] = useState({});
+  const [reasonsById, setReasonsById] = useState({});
+  const [errorById, setErrorById] = useState({});
+  const [processingIds, setProcessingIds] = useState([]);
 
   useEffect(() => {
-    const updatedActions = actions?.filter((action) => !localActionIds.includes(action.id));
-
-    if (updatedActions && updatedActions.length > 0) {
-      setLocalActionIds((prevIds) => [...prevIds, ...updatedActions.map(({id}) => id)]);
-
-      setDenied((prevDenied) => prevDenied.map((value, index) => updatedActions[index] ? false : value));
-      setReasons((prevReasons) => prevReasons.map((value, index) => updatedActions[index] ? '' : value));
+    if (!actions || actions.length === 0) {
+      return;
     }
+
+    setDeniedById((prevDenied) => {
+      const nextDenied = {};
+      actions.forEach(({id}) => {
+        nextDenied[id] = prevDenied[id] || false;
+      });
+      return nextDenied;
+    });
+
+    setReasonsById((prevReasons) => {
+      const nextReasons = {};
+      actions.forEach(({id}) => {
+        nextReasons[id] = prevReasons[id] || '';
+      });
+      return nextReasons;
+    });
+
+    setErrorById((prevErrors) => {
+      const nextErrors = {};
+      actions.forEach(({id}) => {
+        nextErrors[id] = prevErrors[id] || '';
+      });
+      return nextErrors;
+    });
+
+    setHiddenActions((prevHiddenActions) => prevHiddenActions.filter((id) => actions.some((action) => action.id === id)));
+    setProcessingIds((prevProcessingIds) => prevProcessingIds.filter((id) => actions.some((action) => action.id === id)));
   }, [actions]);
 
-  const handleDeny = (index) => {
-    setDenied((prevDenied) => {
-      const newDeniedState = [...prevDenied];
-      newDeniedState[index] = !newDeniedState[index];
-      return newDeniedState;
-    });
+  const handleDeny = (actionId) => {
+    setDeniedById((prevDenied) => ({...prevDenied, [actionId]: !prevDenied[actionId]}));
   };
 
-  const handleSelection = (index, status, permissionId) => {
-    setHiddenActions((prevHiddenActions) => [...prevHiddenActions, index]);
+  const handleReasonChange = (actionId, value) => {
+    setReasonsById((prevReasons) => ({...prevReasons, [actionId]: value}));
+  };
+
+  const handleSelection = async (permissionId, status) => {
+    if (processingIds.includes(permissionId)) {
+      return;
+    }
+
+    setProcessingIds((prevProcessingIds) => [...prevProcessingIds, permissionId]);
+    setErrorById((prevErrors) => ({...prevErrors, [permissionId]: ''}));
 
     const data = {
       status: status,
-      user_feedback: reasons[index],
+      user_feedback: reasonsById[permissionId],
     };
 
-    updatePermissions(permissionId, data).then((response) => {
-      if (response.status === 200)
-        setPendingPermissions(pendingPermission - 1)
-    });
+    try {
+      const response = await updatePermissions(permissionId, data);
+
+      if (response.status === 200) {
+        setHiddenActions((prevHiddenActions) => [...prevHiddenActions, permissionId]);
+        setPendingPermissions((prevPendingPermissions) => Math.max((prevPendingPermissions || 0) - 1, 0));
+      } else {
+        setErrorById((prevErrors) => ({...prevErrors, [permissionId]: 'Could not update permission. Please retry.'}));
+      }
+    } catch {
+      setErrorById((prevErrors) => ({...prevErrors, [permissionId]: 'Could not update permission. Please retry.'}));
+    } finally {
+      setProcessingIds((prevProcessingIds) => prevProcessingIds.filter((id) => id !== permissionId));
+    }
   };
 
   return (
     <>
       {actions && actions.length > 0 ? (
-        <div className={styles.detail_body} style={{height: 'auto'}}>
-          {actions.map((action, index) => {
-            if (action.status === 'PENDING' && !hiddenActions.includes(index)) {
-              return (<ActionBox key={action.id} action={action} index={index} denied={denied} setReasons={setReasons}
-                                 reasons={reasons} handleDeny={handleDeny} handleSelection={handleSelection}/>);
+        <div className={`${styles.detail_body} ${styles.action_console_body}`}>
+          {actions.map((action) => {
+            if (action.status === 'PENDING' && !hiddenActions.includes(action.id)) {
+              return (<ActionBox key={action.id} action={action} deniedById={deniedById}
+                                 reasonsById={reasonsById} errorById={errorById} processingIds={processingIds}
+                                 handleReasonChange={handleReasonChange}
+                                 handleDeny={handleDeny} handleSelection={handleSelection}/>);
             } else if (action.status === 'APPROVED' || action.status === 'REJECTED') {
               return (<HistoryBox key={action.id} action={action}/>);
             }

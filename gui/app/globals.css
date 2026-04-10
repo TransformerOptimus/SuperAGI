@@ -105,3 +105,23 @@ a {
     color-scheme: dark;
   }
 }
+
+/* Improving base readability */
+body {
+  line-height: 1.6;
+  letter-spacing: 0.2px;
+}
+
+/*Better scrollbar (clean UI touch)*/ 
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}

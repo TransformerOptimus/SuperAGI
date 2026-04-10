@@ -518,8 +518,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
         <div className={styles.detail_body} style={{paddingRight: '0'}}>
           {rightPanel === 'action_console' && agentDetails && (
             <div className={styles.detail_content}>
-              <ActionConsole key={JSON.stringify(fetchedData)} actions={fetchedData}
-                             pendingPermission={pendingPermission} setPendingPermissions={setPendingPermissions}/>
+              <ActionConsole actions={fetchedData} setPendingPermissions={setPendingPermissions}/>
             </div>
           )}
           {rightPanel === 'details' && agentDetails && agentDetails !== null &&
