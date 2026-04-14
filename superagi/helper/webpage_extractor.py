@@ -10,6 +10,7 @@ from requests_html import HTMLSession
 import time
 import random
 from lxml import html
+from superagi.helper.url_validator import validate_public_url
 from superagi.lib.logger import logger
 
 USER_AGENTS = [
@@ -46,6 +47,7 @@ class WebpageExtractor:
             str: The extracted text.
         """
         try:
+            validate_public_url(url)
             if url.lower().endswith(".pdf"):
                 response = requests.get(url)
                 response.raise_for_status()
@@ -98,6 +100,7 @@ class WebpageExtractor:
         }
 
         try:
+            validate_public_url(url)
             response = requests.get(url, headers=headers, timeout=10)
             if response.status_code == 200:
                 soup = BeautifulSoup(response.text, 'html.parser')
@@ -136,6 +139,7 @@ class WebpageExtractor:
             str: The extracted text.
         """
         try:
+            validate_public_url(url)
             config = Config()
             config.browser_user_agent = random.choice(USER_AGENTS)
             config.request_timeout = 10

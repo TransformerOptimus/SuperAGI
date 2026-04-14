@@ -2,6 +2,7 @@ from typing import Type, Optional
 
 from pydantic import BaseModel, Field
 
+from superagi.helper.url_validator import validate_public_url
 from superagi.helper.webpage_extractor import WebpageExtractor
 from superagi.llms.base_llm import BaseLlm
 from superagi.tools.base_tool import BaseTool
@@ -43,6 +44,10 @@ class WebScraperTool(BaseTool):
         Returns:
             The text content of the website.
         """
+        try:
+            validate_public_url(website_url)
+        except ValueError as exc:
+            return f"Refusing to scrape URL: {exc}"
         content = WebpageExtractor().extract_with_bs4(website_url)
         max_length = len(' '.join(content.split(" ")[:600]))
         return content[:max_length]
