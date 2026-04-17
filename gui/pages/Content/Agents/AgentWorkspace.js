@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useMemo} from 'react';
+import React, {useEffect, useState} from 'react';
 import Image from 'next/image';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -103,9 +103,13 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
       });
   };
 
-  const pendingPermissions = useMemo(() => {
-    if (!fetchedData) return 0;
-    setPendingPermissions(fetchedData.filter(permission => permission.status === "PENDING").length);
+  useEffect(() => {
+    if (!fetchedData) {
+      setPendingPermissions(0);
+      return;
+    }
+
+    setPendingPermissions(fetchedData.filter((permission) => permission.status === 'PENDING').length);
   }, [fetchedData]);
 
   const addInstruction = () => {
@@ -145,23 +149,29 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
   }
 
   const handleCreateRun = () => {
+    const normalizedGoals = (goals && goals.length > 0) ? goals : (agentDetails?.goal || []);
+    const normalizedInstructions = (instructions && instructions.length > 0)
+      ? instructions
+      : (agentDetails?.instruction || []);
+
     if (runName.replace(/\s/g, '') === '') {
       toast.error("Run name can't be blank", {autoClose: 1800});
       return
     }
-    setGoals(goals.length< 0 ? agentDetails.goal : goals)
-    setInstructions(instructions.length < 0 ? agentDetails.instruction : instructions)
 
-    if (goals.length <= 0) {
+    if (normalizedGoals.length <= 0) {
       toast.error("Agent needs to have goals", {autoClose: 1800});
       return
     }
 
+    setGoals(normalizedGoals);
+    setInstructions(normalizedInstructions);
+
     const executionData = {
       "agent_id": agentId,
       "name": runName,
-      "goal": goals,
-      "instruction": instructions
+      "goal": normalizedGoals,
+      "instruction": normalizedInstructions
     }
 
     addExecution(executionData)
@@ -214,6 +224,11 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
   }
 
   const updateRunStatus = (status) => {
+    if (!selectedRun?.id) {
+      setDropdown(false);
+      return;
+    }
+
     const executionData = {"status": status};
 
     updateExecution(selectedRun.id, executionData)
@@ -325,15 +340,27 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
 
   useEffect(() => {
     const resetRunStatus = (eventData) => {
-      if (eventData.executionId === selectedRun.id) {
-        setSelectedRun((prevSelectedRun) => (
-          {...prevSelectedRun, status: eventData.status}
-        ));
+      if (!selectedRun?.id || eventData.executionId !== selectedRun.id) {
+        return;
       }
+
+      setSelectedRun((prevSelectedRun) => (
+        prevSelectedRun ? {...prevSelectedRun, status: eventData.status} : prevSelectedRun
+      ));
     };
 
     const refreshDate = () => {
-      fetchAgentScheduleComponent()
+      if (!agent?.is_scheduled) {
+        return;
+      }
+
+      getDateTime(agentId)
+        .then((response) => {
+          setAgentScheduleDetails(response.data);
+        })
+        .catch((error) => {
+          console.error('Error fetching agent data:', error);
+        });
     };
 
     EventBus.on('resetRunStatus', resetRunStatus);
@@ -343,16 +370,16 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
       EventBus.off('resetRunStatus', resetRunStatus);
       EventBus.off('refreshDate', refreshDate);
     };
-  });
+  }, [selectedRun?.id, agent?.is_scheduled, agentId]);
 
   return (<>
-    <div style={{display: 'flex'}}>
+    <div className={styles.workspace_layout}>
       {history && selectedRun !== null &&
         <RunHistory runs={agentExecutions} selectedRunId={selectedRun?.id} setSelectedRun={setSelectedRun}
                     setHistory={setHistory} setAgentExecutions={setAgentExecutions}/>}
-      <div style={{width: history ? '40%' : '60%'}}>
+      <div className={history ? styles.workspace_main_panel_with_history : styles.workspace_main_panel_full}>
         <div className={styles.detail_top}>
-          <div style={{display: 'flex'}}>
+          <div className={styles.workspace_tab_group}>
             {!history && selectedRun !== null &&
               <div style={{display: 'flex', alignItems: 'center', cursor: 'pointer', marginRight: '7px'}}
                    onClick={() => setHistory(true)}>
@@ -474,9 +501,9 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
             <div className={styles.detail_content}><TaskQueue selectedRunId={selectedRun?.id || 0}/></div>}
         </div>
       </div>
-      <div style={{width: '40%'}}>
+      <div className={styles.workspace_side_panel}>
         <div className={styles.detail_top}>
-          <div style={{display: 'flex', overflowX: 'scroll'}}>
+          <div className={styles.workspace_tab_group_scroll}>
             {agentDetails && ((fetchedData && fetchedData.length > 0) || agentDetails.permission_type === 'RESTRICTED') && <div>
               <button onClick={() => setRightPanel('action_console')} className={styles.tab_button}
                       style={rightPanel === 'action_console' ? {background: '#454254'} : {background: 'transparent'}}>
@@ -518,8 +545,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
         <div className={styles.detail_body} style={{paddingRight: '0'}}>
           {rightPanel === 'action_console' && agentDetails && (
             <div className={styles.detail_content}>
-              <ActionConsole key={JSON.stringify(fetchedData)} actions={fetchedData}
-                             pendingPermission={pendingPermission} setPendingPermissions={setPendingPermissions}/>
+              <ActionConsole actions={fetchedData} setPendingPermissions={setPendingPermissions}/>
             </div>
           )}
           {rightPanel === 'details' && agentDetails && agentDetails !== null &&

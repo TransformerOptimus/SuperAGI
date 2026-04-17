@@ -14,30 +14,43 @@ export default function MarketTools() {
   useEffect(() => {
     loadingTextEffect('Loading Toolkits', setLoadingText, 500);
 
-    if (window.location.href.toLowerCase().includes('marketplace')) {
-      setShowMarketplace(true);
-      axios.get('https://app.superagi.com/api/toolkits/marketplace/list/0')
-        .then((response) => {
+    let isMounted = true;
+    const isMarketplaceRoute = typeof window !== 'undefined' && window.location.href.toLowerCase().includes('marketplace');
+
+    const loadToolTemplates = async () => {
+      try {
+        if (isMarketplaceRoute) {
+          setShowMarketplace(true);
+          const response = await axios.get('https://app.superagi.com/api/toolkits/marketplace/list/0');
           const data = response.data || [];
-          const filteredData = data?.filter((item) => !excludedToolkits().includes(item.name));
+          const filteredData = data.filter((item) => !excludedToolkits().includes(item.name));
+          if (isMounted) {
+            setToolTemplates(filteredData);
+            setIsLoading(false);
+          }
+          return;
+        }
+
+        const response = await fetchToolTemplateList();
+        const data = response.data || [];
+        const filteredData = data.filter((item) => !excludedToolkits().includes(item.name));
+        if (isMounted) {
           setToolTemplates(filteredData);
           setIsLoading(false);
-        })
-        .catch((error) => {
-          console.error('Error fetching tool templates:', error);
-        });
-    } else {
-      fetchToolTemplateList()
-        .then((response) => {
-          const data = response.data || [];
-          const filteredData = data?.filter((item) => !excludedToolkits().includes(item.name));
-          setToolTemplates(filteredData);
+        }
+      } catch (error) {
+        if (isMounted) {
           setIsLoading(false);
-        })
-        .catch((error) => {
-          console.error('Error fetching tools:', error);
-        });
-    }
+        }
+        console.error('Error fetching tool templates:', error);
+      }
+    };
+
+    loadToolTemplates();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   function handleTemplateClick(item) {

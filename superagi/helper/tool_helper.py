@@ -17,6 +17,25 @@ from superagi.tools.base_tool import BaseTool, ToolConfiguration
 from superagi.tools.base_tool import BaseToolkit
 
 
+def _safe_extract_path(base_dir, member_name):
+    normalized_member = member_name.replace('\\', '/')
+    normalized_member = os.path.normpath(normalized_member).lstrip('/\\')
+
+    if normalized_member in ('', '.'):
+        return None
+
+    if normalized_member.startswith('..'):
+        raise ValueError(f"Unsafe archive member path detected: {member_name}")
+
+    base_abs_path = os.path.abspath(base_dir)
+    target_abs_path = os.path.abspath(os.path.join(base_abs_path, normalized_member))
+
+    if os.path.commonpath([base_abs_path, target_abs_path]) != base_abs_path:
+        raise ValueError(f"Unsafe archive member path detected: {member_name}")
+
+    return target_abs_path
+
+
 def parse_github_url(github_url):
     parts = github_url.split('/')
     owner = parts[3]
@@ -54,14 +73,17 @@ def download_tool(tool_url, target_folder):
             else:
                 continue
 
-            target_path = os.path.join(target_folder, target_name)
+            target_path = _safe_extract_path(target_folder, target_name)
 
             if not target_name:
+                continue
+            if target_path is None:
                 continue
 
             if member.endswith('/'):
                 os.makedirs(target_path, exist_ok=True)
             else:
+                os.makedirs(os.path.dirname(target_path), exist_ok=True)
                 with open(target_path, 'wb') as outfile, z.open(member) as infile:
                     outfile.write(infile.read())
     logger.info("Donwload Success!")

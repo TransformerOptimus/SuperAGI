@@ -1,51 +1,21 @@
 import React, {useState, useEffect} from "react";
-import styles from "@/pages/Content/Marketplace/Market.module.css";
 import Image from "next/image";
-import {loadingTextEffect, modelIcon, returnToolkitIcon} from "@/utils/utils";
-import {EventBus} from "@/utils/eventBus";
-import {fetchMarketPlaceModel} from "@/pages/api/DashboardService";
-import axios from "axios";
+import {loadingTextEffect} from "@/utils/utils";
 
 export default function MarketModels(){
     const [showMarketplace, setShowMarketplace] = useState(false);
     const [isLoading, setIsLoading] = useState(false)
     const [loadingText, setLoadingText] = useState("Loading Models");
-    const [modelTemplates, setModelTemplates] = useState([]);
-
-    // useEffect(() => {
-    //     loadingTextEffect('Loading Models', setLoadingText, 500);
-    //     setIsLoading(true)
-    //     if (window.location.href.toLowerCase().includes('marketplace')) {
-    //         axios.get('https://app.superagi.com/api/models_controller/get/models_details')
-    //             .then((response) => {
-    //                 setModelTemplates(response.data)
-    //             })
-    //     }
-    //     else {
-    //         fetchMarketPlaceModel().then((response) => {
-    //             setModelTemplates(response.data)
-    //         })
-    //     }
-    // },[])
-
-    // useEffect(() => {
-    //     if(modelTemplates.length > 0)
-    //         setIsLoading(true)
-    //     else
-    //         setIsLoading(false)
-    // }, [modelTemplates])
-
-    function handleTemplateClick(item) {
-        const contentType = 'model_template';
-        EventBus.emit('openTemplateDetails', {item, contentType});
-    }
 
     useEffect(() => {
         loadingTextEffect('Loading Models', setLoadingText, 500);
         setIsLoading(true)
-        setTimeout(() => {
+
+        const timer = setTimeout(() => {
             setIsLoading(false)
         }, 2500);
+
+        return () => clearTimeout(timer);
     }, []);
 
     return(

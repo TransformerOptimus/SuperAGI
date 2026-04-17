@@ -5,6 +5,8 @@ import {getFormattedDate, modelIcon} from "@/utils/utils";
 import AddModelMarketPlace from "./AddModelMarketPlace";
 export default function ModelTemplate({env, template, getModels, sendModelData}){
     const [isInstalled, setIsInstalled] = useState(false);
+    const modelName = template?.model_name || '';
+    const description = template?.description || 'No description available.';
 
     function handleBackClick() {
         EventBus.emit('goToMarketplace', {});
@@ -31,28 +33,30 @@ export default function ModelTemplate({env, template, getModels, sendModelData})
             </div>
             { !isInstalled ? (<div className="gridContainer">
                 <div className="col_3 display_column_container padding_16">
-                    <span className="text_20 color_white">{template.model_name}</span>
-                    <span className="text_12 color_gray mt_4">by {template.model_name.includes('/') ? template.model_name.split('/')[0] : template.provider}</span>
-                    <button className="primary_button w_100 mt_16" disabled={template.is_installed} onClick={() => handleInstallClick()}>
-                        <Image width={16} height={16} src={template.is_installed ? '/images/tick.svg' : '/images/marketplace_download.svg'} alt="download-icon" />
-                        <span className="ml_8">{template.is_installed ? 'Installed' : 'Install'}</span>
+                    <span className="text_20 color_white">{modelName}</span>
+                    <span className="text_12 color_gray mt_4">by {modelName.includes('/') ? modelName.split('/')[0] : (template?.provider || '-')}</span>
+                    <button type="button" className="primary_button w_100 mt_16" disabled={template?.is_installed} onClick={() => handleInstallClick()}>
+                        <Image width={16} height={16} src={template?.is_installed ? '/images/tick.svg' : '/images/marketplace_download.svg'} alt="download-icon" />
+                        <span className="ml_8">{template?.is_installed ? 'Installed' : 'Install'}</span>
                     </button>
 
                     <hr className="horizontal_line" />
-                    <span className="text_12 color_white lh_18">{template.description}</span>
+                    <span className="text_12 color_white lh_18">{description}</span>
                     <hr className="horizontal_line" />
 
                     <span className="text_12 color_gray">Model Provider</span>
                     <div className="tags mt_8">
-                        <Image width={18} height={18} src={modelIcon(template.provider)} alt="logo-icon" />
-                        <span className="text_12 color_white ml_4">{template.provider}</span>
+                        <Image width={18} height={18} src={modelIcon(template?.provider)} alt="logo-icon" />
+                        <span className="text_12 color_white ml_4">{template?.provider || '-'}</span>
                     </div>
 
                     <hr className="horizontal_line" />
                     <span className="text_12 color_gray">Updated At</span>
-                    <span className="text_12 color_white mt_8">{getFormattedDate(template.updated_at)}</span>
+                    <span className="text_12 color_white mt_8">{template?.updated_at ? getFormattedDate(template.updated_at) : '-'}</span>
                 </div>
-                <div className="col_9 display_column_container padding_16 color_white text_12 lh_18" dangerouslySetInnerHTML={{ __html: template.model_features }} />
+                <div className="col_9 display_column_container padding_16 color_white text_12 lh_18">
+                    {template?.model_features ? <div dangerouslySetInnerHTML={{ __html: template.model_features }} /> : <div className="color_gray">No feature details available.</div>}
+                </div>
             </div> ):(
                 <AddModelMarketPlace template={template} getModels={getModels} sendModelData={sendModelData}/>
                 )}

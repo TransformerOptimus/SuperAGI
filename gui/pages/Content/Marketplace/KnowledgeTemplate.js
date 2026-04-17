@@ -19,16 +19,21 @@ import {loadingTextEffect} from "@/utils/utils";
 export default function KnowledgeTemplate({template, env}) {
   const [installed, setInstalled] = useState('');
   const [dropdown, setDropdown] = useState(false);
-  const [templateData, setTemplateData] = useState([]);
+  const [templateData, setTemplateData] = useState({});
   const [markdownContent, setMarkdownContent] = useState('');
   const indexRef = useRef(null);
   const [indexDropdown, setIndexDropdown] = useState(false);
   const [pinconeIndices, setPineconeIndices] = useState([]);
   const [qdrantIndices, setQdrantIndices] = useState([]);
   const [weaviateIndices, setWeaviateIndices] = useState([]);
+  const templateName = template?.name || '';
 
   useEffect(() => {
-    getValidMarketplaceIndices(template.name)
+    if (!templateName) {
+      return;
+    }
+
+    getValidMarketplaceIndices(templateName)
       .then((response) => {
         const data = response.data || [];
         if (data) {
@@ -62,7 +67,7 @@ export default function KnowledgeTemplate({template, env}) {
 
     if (window.location.href.toLowerCase().includes('marketplace')) {
       setInstalled('Sign in to install');
-      axios.get(`https://app.superagi.com/api/knowledges/marketplace/get/details/${template.name}`)
+      axios.get(`https://app.superagi.com/api/knowledges/marketplace/get/details/${templateName}`)
         .then((response) => {
           const data = response.data || [];
           setTemplateData(data);
@@ -74,7 +79,7 @@ export default function KnowledgeTemplate({template, env}) {
           console.error('Error fetching template details:', error);
         });
     } else {
-      fetchKnowledgeTemplateOverview(template.name)
+      fetchKnowledgeTemplateOverview(templateName)
         .then((response) => {
           const data = response.data || [];
           setTemplateData(data);
@@ -89,6 +94,10 @@ export default function KnowledgeTemplate({template, env}) {
   }, []);
 
   const handleInstallClick = (index) => {
+    if (!index) {
+      return;
+    }
+
     const indexId = index.id
     if(!index.is_valid_state){
       toast.error("Select valid index", {autoClose : 1800})
@@ -182,18 +191,23 @@ export default function KnowledgeTemplate({template, env}) {
           </div>
           <div className="col-3" style={{maxHeight: '84vh', overflowY: 'auto', padding: '0'}}>
             <div className={styles2.left_container}>
-              <span className={styles2.top_heading}>{templateData?.name}</span>
+              <span className={styles2.top_heading}>{templateData?.name || templateName}</span>
               <span style={{fontSize: '12px', marginTop: '15px',}}
-                    className={styles.tool_publisher}>by {templateData?.contributed_by}&nbsp;{'\u00B7'}&nbsp;<Image
+              const [templateData, setTemplateData] = useState({});
                 width={14} height={14} src="/images/upload_icon.svg"
                 alt="upload-icon"
                 style={{marginBottom: '1px'}}/>&nbsp;{'\u00B7'}&nbsp;{templateData?.install_number || 0}</span>
 
               {!template?.is_installed && <div className="dropdown_container_search" style={{width: '100%'}}>
                 <div className="primary_button" onClick={installClicked}
+              const templateName = template?.name || '';
                      style={{marginTop: '15px', cursor: 'pointer', width: '100%'}}>
                   <Image width={14} height={14} src="/images/upload_icon_dark.svg" alt="upload-icon"/>&nbsp;
-                  <span>{installed}</span>{installed === 'Installing' && <span className="loader ml_10"></span>}
+                if (!templateName) {
+                  return;
+                }
+
+                getValidMarketplaceIndices(templateName)
                 </div>
                 <div>
                   {indexDropdown && installed === 'Install' &&
@@ -214,7 +228,7 @@ export default function KnowledgeTemplate({template, env}) {
                             <div style={!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] ? {
                               color: '#888888',
                               textDecoration: 'line-through',
-                              pointerEvents : 'none',
+                  axios.get(`https://app.superagi.com/api/knowledges/marketplace/get/details/${templateName}`)
                             } : {}}>{index.name}</div>
                             {!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] &&
                               <div>
@@ -226,7 +240,7 @@ export default function KnowledgeTemplate({template, env}) {
                       {qdrantIndices && qdrantIndices.length > 0 &&
                         <div className={styles3.knowledge_db} style={{maxWidth: '100%'}}>
                           <div className={styles3.knowledge_db_name}>Qdrant</div>
-                          {qdrantIndices.map((index) => (<div key={index.id} className="custom_select_option"
+                  fetchKnowledgeTemplateOverview(templateName)
                                                               onClick={() => handleInstallClick(index)} style={{
                             padding: '12px 14px',
                             maxWidth: '100%',
@@ -241,6 +255,10 @@ export default function KnowledgeTemplate({template, env}) {
                             {!checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[0] &&
                               <div>
                                 <Image width={15} height={15} src="/images/info.svg" alt="info-icon"
+                if (!index) {
+                  return;
+                }
+
                                        title={checkIndexValidity(index.is_valid_state, index.is_valid_dimension)[1]}/>
                               </div>}
                           </div>))}
@@ -334,9 +352,9 @@ export default function KnowledgeTemplate({template, env}) {
               <span style={{fontSize: '12px'}} className={styles.tool_publisher}>Dimensions</span>
               <div className="tool_container" style={{marginTop: '10px', width: 'fit-content'}}>
                 <div className={styles1.tool_text}>{templateData?.dimensions}</div>
-              </div>
+                          <span className={styles2.top_heading}>{templateData?.name || templateName}</span>
 
-              <hr className={styles2.horizontal_line}/>
+                                className={styles.tool_publisher}>by {templateData?.contributed_by || '-'}&nbsp;{' B7'}&nbsp;<Image
 
               <span style={{fontSize: '12px',}} className={styles.tool_publisher}>Last updated</span>
               <span className={styles2.description_text}>{templateData?.updated_at}</span>

@@ -57,10 +57,11 @@ export default function Details({agentDetails1, runCount, agentScheduleDetails, 
   }, [agentDetails1]);
 
   useEffect(() => {
-    if(!agentScheduleDetails){
-      setScheduleText('')
-      return
+    if (!agent?.is_scheduled || !agentScheduleDetails) {
+      setScheduleText('');
+      return;
     }
+
     if (agent?.is_scheduled) {
       if (agentScheduleDetails?.recurrence_interval !== null) {
         if ((agentScheduleDetails?.expiry_runs === -1 || agentScheduleDetails?.expiry_runs == null) && agentScheduleDetails?.expiry_date !== null) {
@@ -81,15 +82,15 @@ export default function Details({agentDetails1, runCount, agentScheduleDetails, 
 
           setScheduleText(tempScheduleText);
         } else if ((agentScheduleDetails?.expiry_runs > 0) && agentScheduleDetails?.expiry_date == null) {
-          setScheduleText('The agent is scheduled to run on ' + agentScheduleDetails?.start_date + ' ' + agentScheduleDetails?.start_time + ' and will recursively run after every ' + agentScheduleDetails?.recurrence_interval + ' and will expire after ' + agentScheduleDetails?.expiry_runs + ' runs')
+          setScheduleText('The agent is scheduled to run on ' + agentScheduleDetails?.start_date + ' ' + agentScheduleDetails?.start_time + ' and will recursively run after every ' + agentScheduleDetails?.recurrence_interval + ' and will expire after ' + agentScheduleDetails?.expiry_runs + ' runs');
         } else {
-          setScheduleText('The agent is scheduled to run on ' + agentScheduleDetails?.start_date + ' ' + agentScheduleDetails?.start_time + ' and will recursively run after every ' + agentScheduleDetails?.recurrence_interval + ' and will never expire')
+          setScheduleText('The agent is scheduled to run on ' + agentScheduleDetails?.start_date + ' ' + agentScheduleDetails?.start_time + ' and will recursively run after every ' + agentScheduleDetails?.recurrence_interval + ' and will never expire');
         }
       } else {
-        setScheduleText('The agent is scheduled to run on ' + agentScheduleDetails?.start_date + ' ' + agentScheduleDetails?.start_time)
+        setScheduleText('The agent is scheduled to run on ' + agentScheduleDetails?.start_date + ' ' + agentScheduleDetails?.start_time);
       }
     }
-  }, [agentScheduleDetails]);
+  }, [agentScheduleDetails, agent?.is_scheduled]);
 
   return (<>
     <div className={styles.history_box} style={{background: '#272335', padding: '15px', cursor: 'default'}}>

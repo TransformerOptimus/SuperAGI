@@ -1,4 +1,5 @@
 import json
+import ast
 
 import redis
 
@@ -20,7 +21,7 @@ class TaskQueue:
         if len(self.get_tasks()) <= 0:
             return
         task = self.db.lpop(self.queue_name)
-        self.db.lpush(self.completed_tasks, str({"task": task, "response": response}))
+        self.db.lpush(self.completed_tasks, json.dumps({"task": task, "response": response}))
 
     def get_first_task(self):
         return self.db.lindex(self.queue_name, 0)
@@ -30,7 +31,12 @@ class TaskQueue:
 
     def get_completed_tasks(self):
         tasks = self.db.lrange(self.completed_tasks, 0, -1)
-        return [eval(task) for task in tasks]
+        parsed_tasks = []
+        for task in tasks:
+            parsed_task = self._parse_task_record(task)
+            if parsed_task is not None:
+                parsed_tasks.append(parsed_task)
+        return parsed_tasks
 
     def clear_tasks(self):
         self.db.delete(self.queue_name)
@@ -40,7 +46,21 @@ class TaskQueue:
         if response is None:
             return None
 
-        return eval(response)
+        return self._parse_task_record(response)
+
+    @staticmethod
+    def _parse_task_record(raw_task):
+        try:
+            parsed_task = json.loads(raw_task)
+        except json.JSONDecodeError:
+            try:
+                parsed_task = ast.literal_eval(raw_task)
+            except (ValueError, SyntaxError):
+                return None
+
+        if isinstance(parsed_task, dict):
+            return parsed_task
+        return None
 
     def set_status(self, status):
         self.db.set(self.queue_name + "_status", status)

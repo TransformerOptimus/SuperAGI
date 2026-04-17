@@ -75,3 +75,12 @@ def test_consume_from_queue(task_queue_mock, agent_execution_feed_mock, queue_st
     queue_step_handler.session.commit.assert_called()  # Ensure session commits were called
     queue_step_handler.session.add.assert_called()
     task_queue_mock.complete_task.assert_called_once_with("PROCESSED")
+
+
+def test_process_reply_rejects_unsafe_payload(queue_step_handler):
+    task_queue = Mock()
+
+    with pytest.raises(ValueError, match="Invalid queue task payload"):
+        queue_step_handler._process_reply(task_queue, "__import__('os').system('echo hacked')")
+
+    task_queue.add_task.assert_not_called()

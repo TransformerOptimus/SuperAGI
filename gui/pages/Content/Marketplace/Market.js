@@ -29,10 +29,14 @@ export default function Market({env, getModels, sendModelData}) {
     const market_item = localStorage.getItem('market_item');
 
     if (item_clicked) {
-      setItemClicked(JSON.parse(item_clicked));
-      if (detail_type) {
-        setDetailType(item_clicked === 'true' ? detail_type : '');
-        setTemplateData(item_clicked === 'true' ? JSON.parse(market_item) : []);
+      const parsedItemClicked = JSON.parse(item_clicked);
+      setItemClicked(parsedItemClicked);
+      if (parsedItemClicked && detail_type && market_item) {
+        setDetailType(detail_type);
+        setTemplateData(JSON.parse(market_item));
+      } else {
+        setDetailType('');
+        setTemplateData([]);
       }
     }
 
@@ -58,7 +62,9 @@ export default function Market({env, getModels, sendModelData}) {
   ];
 
   const renderTab = (tab) => {
-    if(tab.id === 'market_models' && !(window.location.href.toLowerCase().includes('marketplace')))
+    const isMarketplaceView = typeof window !== 'undefined' && window.location.href.toLowerCase().includes('marketplace');
+
+    if(tab.id === 'market_models' && !isMarketplaceView)
       return
 
     return (

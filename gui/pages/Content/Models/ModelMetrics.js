@@ -3,13 +3,13 @@ import {fetchModelData} from "@/pages/api/DashboardService";
 import {formatDateTime, formatNumber, returnToolkitIcon} from "@/utils/utils";
 import Image from "next/image";
 
-export default function ModelMetrics(modelDetails) {
-    const [modelData, setModelData] = useState(modelDetails);
+export default function ModelMetrics({modelDetails}) {
+    const [modelData, setModelData] = useState(modelDetails || {});
     const [modelMeta, setModelMeta] = useState([])
     const [modelRunData, setModelRunData] = useState([])
 
     useEffect(()=>{
-        setModelData(modelDetails.modelDetails);
+        setModelData(modelDetails || {});
     },[modelDetails])
 
     useEffect(()=>{
@@ -17,11 +17,11 @@ export default function ModelMetrics(modelDetails) {
     },[modelData, modelDetails])
 
     const getModelInfo = () =>{
-        if(modelData.name !== undefined){
+        if(modelData?.name !== undefined){
             fetchModelData(modelData.name).then((response)=>{
                 console.log(response)
-                setModelMeta(response.data)
-                setModelRunData(response.data.runs)
+                setModelMeta(response.data || {})
+                setModelRunData(response.data?.runs || [])
             })
         }
     }
@@ -31,17 +31,17 @@ export default function ModelMetrics(modelDetails) {
             <div className="my_rows">
                 <div className="my_col_4 display_column_container">
                     <span className="text_14 mb_8">Total Calls</span>
-                    <div className="text_60_bold display_flex justify_center align_center w_100 h_100 mb_24">{modelMeta.total_calls}</div>
+                    <div className="text_60_bold display_flex justify_center align_center w_100 h_100 mb_24">{modelMeta.total_calls ?? 0}</div>
                 </div>
 
                 <div className="my_col_4 display_column_container">
                     <span className="text_14 mb_8">Total Tokens</span>
-                    <div className="text_60_bold display_flex justify_center align_center w_100 h_100 mb_24">{formatNumber(modelMeta.total_tokens)}</div>
+                    <div className="text_60_bold display_flex justify_center align_center w_100 h_100 mb_24">{formatNumber(modelMeta.total_tokens ?? 0)}</div>
                 </div>
 
                 <div className="my_col_4 display_column_container">
                     <span className="text_14 mb_8">Total Agents</span>
-                    <div className="text_60_bold display_flex justify_center align_center w_100 h_100 mb_24">{modelMeta.total_agents}</div>
+                    <div className="text_60_bold display_flex justify_center align_center w_100 h_100 mb_24">{modelMeta.total_agents ?? 0}</div>
                 </div>
             </div>
             <div className="my_rows mt_8">
@@ -50,7 +50,7 @@ export default function ModelMetrics(modelDetails) {
                     {modelRunData.length === 0 ?
                         <div className="vertical_container align_center mt_70 w_100">
                             <img src="/images/no_permissions.svg" width={190} height={74} alt="No Data"/>
-                            <span className="text_12 color_white mt_6">No Used Tools Found</span>
+                            <span className="text_12 color_white mt_6">No call logs found</span>
                         </div> : <div className="scrollable_container">
                             <table className="table_css margin_0 padding_0">
                                 <thead>

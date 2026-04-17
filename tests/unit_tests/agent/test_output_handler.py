@@ -152,3 +152,39 @@ def test_handle_method(extract_json_array_section_mock, get_tasks_mock, add_task
     assert add_task_mock.call_count == len(tasks)
     get_tasks_mock.assert_called_once()
     assert response.status == "PENDING"
+
+
+@patch.object(TaskQueue, 'add_task')
+@patch.object(TaskQueue, 'get_tasks')
+@patch.object(JsonCleaner, 'extract_json_array_section')
+def test_task_output_rejects_unsafe_payload(extract_json_array_section_mock, get_tasks_mock, add_task_mock):
+    agent_execution_id = 1
+    agent_config = {"agent_id": 2}
+    handler = TaskOutputHandler(agent_execution_id, agent_config)
+    session_mock = MagicMock()
+
+    extract_json_array_section_mock.return_value = "__import__('os').system('echo hacked')"
+
+    with pytest.raises(ValueError, match="Invalid task array payload"):
+        handler.handle(session_mock, "ignored")
+
+    add_task_mock.assert_not_called()
+
+
+@patch.object(TaskQueue, 'clear_tasks')
+@patch.object(TaskQueue, 'add_task')
+@patch.object(TaskQueue, 'get_tasks')
+@patch.object(JsonCleaner, 'extract_json_array_section')
+def test_replace_task_output_rejects_unsafe_payload(extract_json_array_section_mock, get_tasks_mock, add_task_mock, clear_tasks_mock):
+    agent_execution_id = 1
+    agent_config = {}
+    handler = ReplaceTaskOutputHandler(agent_execution_id, agent_config)
+    session_mock = MagicMock()
+
+    extract_json_array_section_mock.return_value = "__import__('os').system('echo hacked')"
+
+    with pytest.raises(ValueError, match="Invalid task array payload"):
+        handler.handle(session_mock, "ignored")
+
+    clear_tasks_mock.assert_not_called()
+    add_task_mock.assert_not_called()

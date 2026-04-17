@@ -1,4 +1,5 @@
 import json
+import ast
 from superagi.agent.common_types import TaskExecutorResponse, ToolExecutorResponse
 from superagi.agent.output_parser import AgentSchemaOutputParser
 from superagi.agent.task_queue import TaskQueue
@@ -13,6 +14,21 @@ from superagi.vector_store.base import VectorStore
 import numpy as np
 
 from superagi.models.agent_execution_permission import AgentExecutionPermission
+
+
+def _parse_task_list(task_payload: str):
+    try:
+        parsed_tasks = json.loads(task_payload)
+    except json.JSONDecodeError:
+        try:
+            parsed_tasks = ast.literal_eval(task_payload)
+        except (ValueError, SyntaxError) as exception:
+            raise ValueError("Invalid task array payload") from exception
+
+    if not isinstance(parsed_tasks, (list, tuple)):
+        raise ValueError("Task payload must be a list")
+
+    return np.array(parsed_tasks, dtype=object).flatten().tolist()
 
 
 class ToolOutputHandler:
@@ -146,8 +162,7 @@ class TaskOutputHandler:
 
     def handle(self, session, assistant_reply):
         assistant_reply = JsonCleaner.extract_json_array_section(assistant_reply)
-        tasks = eval(assistant_reply)
-        tasks = np.array(tasks).flatten().tolist()
+        tasks = _parse_task_list(assistant_reply)
         for task in reversed(tasks):
             self.task_queue.add_task(task)
         if len(tasks) > 0:
@@ -177,7 +192,7 @@ class ReplaceTaskOutputHandler:
 
     def handle(self, session, assistant_reply):
         assistant_reply = JsonCleaner.extract_json_array_section(assistant_reply)
-        tasks = eval(assistant_reply)
+        tasks = _parse_task_list(assistant_reply)
         self.task_queue.clear_tasks()
         for task in reversed(tasks):
             self.task_queue.add_task(task)

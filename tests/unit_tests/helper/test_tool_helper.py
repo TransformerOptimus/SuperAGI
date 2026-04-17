@@ -100,6 +100,19 @@ def test_download_tool(mock_zip, mock_get):
     mock_zip.assert_called_once_with('target_folder/tool.zip', 'r')
 
 
+@patch('requests.get')
+@patch('zipfile.ZipFile')
+def test_download_tool_rejects_zip_slip_member(mock_zip, mock_get):
+    mock_response = Mock()
+    mock_response.content = b'file content'
+    mock_get.return_value = mock_response
+
+    mock_zip.return_value.__enter__.return_value.namelist.return_value = ['owner-repo-main/../../evil.py']
+
+    with pytest.raises(ValueError, match='Unsafe archive member path detected'):
+        download_tool('https://github.com/owner/repo', 'target_folder')
+
+
 def test_handle_tools_import():
     with patch('superagi.config.config.get_config') as mock_get_config, \
             patch('os.listdir') as mock_listdir, \
