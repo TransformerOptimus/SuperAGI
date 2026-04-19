@@ -47,6 +47,21 @@ class TaskQueueTests(unittest.TestCase):
         self.queue.get_last_task_details()
         mock_get_last_task_details.assert_called()
 
+    def test_parse_task_record_json(self):
+        payload = '{"task": "a", "response": "ok"}'
+        parsed = TaskQueue._parse_task_record(payload)
+        self.assertEqual(parsed, {"task": "a", "response": "ok"})
+
+    def test_parse_task_record_python_literal(self):
+        payload = "{'task': 'a', 'response': 'ok'}"
+        parsed = TaskQueue._parse_task_record(payload)
+        self.assertEqual(parsed, {"task": "a", "response": "ok"})
+
+    def test_parse_task_record_invalid(self):
+        payload = "__import__('os').system('echo hacked')"
+        parsed = TaskQueue._parse_task_record(payload)
+        self.assertIsNone(parsed)
+
 
 if __name__ == '__main__':
     unittest.main()

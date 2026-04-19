@@ -65,6 +65,8 @@ class ToolBuilder:
             if os.path.exists(os.path.join(os.getcwd(), tool_path) + '/' + tool.folder_name):
                 tools_dir = tool_path
                 break
+        if not tools_dir:
+            raise ValueError(f"Tool folder not found for '{tool.folder_name}'")
         parsed_tools_dir = tools_dir.rstrip("/")
         module_name = ".".join(parsed_tools_dir.split("/") + [tool.folder_name, file_name])
 

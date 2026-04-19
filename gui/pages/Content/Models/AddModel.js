@@ -7,7 +7,7 @@ export default function AddModel({internalId, getModels, sendModelData, env}){
         <div id="add_model">
             <div className="row">
                 <div className="col-3" />
-                <div className="col-6 col-6-scrollable">
+                <div className="col-6 col-6-scrollable vertical_containers">
                     <ModelForm internalId={internalId} getModels={getModels} sendModelData={sendModelData} env={env}/>
                 </div>
                 <div className="col-3" />

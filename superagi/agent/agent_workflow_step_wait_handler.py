@@ -20,7 +20,13 @@ class AgentWaitStepHandler:
 
         logger.info("Executing Wait Step")
         execution = AgentExecution.get_agent_execution_from_id(self.session, self.agent_execution_id)
+        if execution is None:
+            logger.error(f"Agent execution not found: {self.agent_execution_id}")
+            return
         workflow_step = AgentWorkflowStep.find_by_id(self.session, execution.current_agent_step_id)
+        if workflow_step is None:
+            logger.error(f"Workflow step not found: {execution.current_agent_step_id}")
+            return
         step_wait = AgentWorkflowStepWait.find_by_id(self.session, workflow_step.action_reference_id)
         if step_wait is not None:
             step_wait.wait_begin_time = datetime.now()

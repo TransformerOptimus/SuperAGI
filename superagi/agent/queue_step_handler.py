@@ -1,4 +1,6 @@
 import time
+import ast
+import json
 
 import numpy as np
 
@@ -75,17 +77,27 @@ class QueueStepHandler:
 
     def _process_reply(self, task_queue: TaskQueue, assistant_reply: str):
         assistant_reply = JsonCleaner.extract_json_array_section(assistant_reply)
-        print("Queue reply:", assistant_reply)
-        task_array = np.array(eval(assistant_reply)).flatten().tolist()
+        logger.debug(f"Queue reply payload: {assistant_reply}")
+        try:
+            parsed_tasks = json.loads(assistant_reply)
+        except json.JSONDecodeError:
+            try:
+                parsed_tasks = ast.literal_eval(assistant_reply)
+            except (ValueError, SyntaxError) as exception:
+                raise ValueError("Invalid queue task payload") from exception
+
+        if not isinstance(parsed_tasks, (list, tuple)):
+            raise ValueError("Queue task payload must be a list")
+
+        task_array = np.array(parsed_tasks, dtype=object).flatten().tolist()
         for task in task_array:
             task_queue.add_task(str(task))
-            logger.info("RAMRAM: Added task to queue: ", task)
+            logger.info(f"Added task to queue: {task}")
 
     def _process_input_instruction(self, step_tool):
         prompt = self._build_queue_input_prompt(step_tool)
         logger.info("Prompt: ", prompt)
         agent_feeds = AgentExecutionFeed.fetch_agent_execution_feeds(self.session, self.agent_execution_id)
-        print(".........//////////////..........2")
         messages = AgentLlmMessageBuilder(self.session, self.llm, self.llm.get_model(), self.agent_id, self.agent_execution_id) \
             .build_agent_messages(prompt, agent_feeds, history_enabled=step_tool.history_enabled,
                                   completion_prompt=step_tool.completion_prompt)

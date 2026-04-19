@@ -16,28 +16,41 @@ export default function MarketKnowledge() {
   useEffect(() => {
     loadingTextEffect('Loading Knowledge Templates', setLoadingText, 500);
 
-    if (window.location.href.toLowerCase().includes('marketplace')) {
-      setShowMarketplace(true);
-      axios.get(`https://app.superagi.com/api/knowledges/marketplace/list/0`)
-        .then((response) => {
+    let isMounted = true;
+    const isMarketplaceRoute = typeof window !== 'undefined' && window.location.href.toLowerCase().includes('marketplace');
+
+    const loadKnowledgeTemplates = async () => {
+      try {
+        if (isMarketplaceRoute) {
+          setShowMarketplace(true);
+          const response = await axios.get(`https://app.superagi.com/api/knowledges/marketplace/list/0`);
           const data = response.data || [];
+          if (isMounted) {
+            setKnowledgeTemplates(data);
+            setIsLoading(false);
+          }
+          return;
+        }
+
+        const response = await fetchKnowledgeTemplateList();
+        const data = response.data || [];
+        if (isMounted) {
           setKnowledgeTemplates(data);
           setIsLoading(false);
-        })
-        .catch((error) => {
-          console.error('Error fetching knowledge templates:', error);
-        });
-    } else {
-      fetchKnowledgeTemplateList()
-        .then((response) => {
-          const data = response.data || [];
-          setKnowledgeTemplates(data);
+        }
+      } catch (error) {
+        if (isMounted) {
           setIsLoading(false);
-        })
-        .catch((error) => {
-          console.error('Error fetching knowledge templates:', error);
-        });
-    }
+        }
+        console.error('Error fetching knowledge templates:', error);
+      }
+    };
+
+    loadKnowledgeTemplates();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   function handleTemplateClick(item) {

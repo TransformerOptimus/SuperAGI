@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, Header, Security, status
+from fastapi import Depends, HTTPException, Header, Security, status, Request
 from fastapi.security import APIKeyHeader
 from fastapi_jwt_auth import AuthJWT
 from fastapi_sqlalchemy import db
@@ -44,7 +44,7 @@ def get_user_organisation(Authorize: AuthJWT = Depends(check_auth)):
     return organisation
 
 
-def get_current_user(Authorize: AuthJWT = Depends(check_auth), request: Request = Depends()):
+def get_current_user(Authorize: AuthJWT = Depends(check_auth), request: Request = None):
     env = get_config("ENV", "DEV")
 
     if env == "DEV":

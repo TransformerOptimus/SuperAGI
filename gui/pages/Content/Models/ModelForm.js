@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
-import {removeTab, openNewTab, createInternalId, getUserClick} from "@/utils/utils";
+import {removeTab, openNewTab, createInternalId, getUserClick, modelGetAuth} from "@/utils/utils";
 import Image from "next/image";
 import {fetchApiKey, storeModel, testModel, verifyEndPoint} from "@/pages/api/DashboardService";
 import {BeatLoader, ClipLoader} from "react-spinners";
@@ -28,6 +28,11 @@ export default function ModelForm({internalId, getModels, sendModelData, env}){
                 setModelDropdown(false)
             }
         }
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
     },[]);
 
     useEffect(() => {
@@ -50,7 +55,7 @@ export default function ModelForm({internalId, getModels, sendModelData, env}){
     const checkModelProvider = async (model_provider) => {
         const response = await fetchApiKey(model_provider);
         console.log(response.data)
-        if(selectedModel !== 'Select a Model'){
+        if(model_provider !== 'Select a Model'){
             if(response.data.length === 0) {
                 setTokenError(true)
                 return true
@@ -63,6 +68,10 @@ export default function ModelForm({internalId, getModels, sendModelData, env}){
     }
 
     const handleAddModel = () =>{
+        if (selectedModel === 'Select a Model') {
+            return;
+        }
+
         setIsLoading(true)
         fetchApiKey(selectedModel).then((response) =>{
             if(response.data.length > 0)

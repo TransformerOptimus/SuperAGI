@@ -1,4 +1,3 @@
-import os
 import requests
 import json
 from superagi.config.config import get_config
@@ -85,7 +84,7 @@ class HuggingFace(BaseLlm):
             params['return_full_text'] = False
             payload = {
                 "inputs": messages,
-                "parameters": self.task_params,
+                "parameters": params,
                 "options": {
                     "use_cache": False,
                     "wait_for_model": True,

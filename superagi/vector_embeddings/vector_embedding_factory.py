@@ -1,7 +1,5 @@
 
-import pinecone
 from typing import Optional
-from pinecone import UnauthorizedException
 from superagi.vector_embeddings.pinecone import Pinecone
 from superagi.vector_embeddings.qdrant import Qdrant
 from superagi.vector_embeddings.weaviate import Weaviate
@@ -45,3 +43,5 @@ class VectorEmbeddingFactory:
         
         if vector_store == VectorStoreType.WEAVIATE:
             return Weaviate(uuid, embeds, metadata)
+
+        raise ValueError(f"Unsupported vector store type: {vector_store}")

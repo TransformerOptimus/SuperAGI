@@ -7,14 +7,18 @@ import {EventBus} from "@/utils/eventBus";
 export default function RunHistory({runs, setHistory, selectedRunId, setSelectedRun, setAgentExecutions}) {
   useEffect(() => {
     const resetRunStatus = (eventData) => {
-      const updatedExecutions = runs.map((run) => {
-        if (run.id === eventData.executionId) {
-          return {...run, status: eventData.status};
+      setAgentExecutions((prevRuns) => {
+        if (!Array.isArray(prevRuns)) {
+          return prevRuns;
         }
-        return run;
-      });
 
-      setAgentExecutions(updatedExecutions);
+        return prevRuns.map((run) => {
+          if (run.id === eventData.executionId) {
+            return {...run, status: eventData.status};
+          }
+          return run;
+        });
+      });
     };
 
     EventBus.on('resetRunStatus', resetRunStatus);
@@ -22,7 +26,7 @@ export default function RunHistory({runs, setHistory, selectedRunId, setSelected
     return () => {
       EventBus.off('resetRunStatus', resetRunStatus);
     };
-  });
+  }, [setAgentExecutions]);
 
   return (<>
     <div className="w_20 h_100">

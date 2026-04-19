@@ -6,8 +6,15 @@ export default function Models({sendModelData, models}){
 
     const handleModelSelect = (model) => {
         getUserClick('Existing Model Clicked', {})
-        model.contentType = 'Model'
-        sendModelData(model)
+        sendModelData({...model, contentType: 'Model'})
+    }
+
+    const formatModelName = (name) => {
+        if (!name) {
+            return '-';
+        }
+
+        return name.includes('/') ? (name.split('/')[1] || name) : name;
     }
 
     return(
@@ -16,6 +23,7 @@ export default function Models({sendModelData, models}){
                 <p className="text_14 mt_8 mb_12 ml_8">Models</p>
                 <div className="w_100 mb_10">
                     <button className="secondary_button w_100"
+                            type="button"
                             onClick={() => {sendModelData({id: -5, name: "new model", contentType: "Add_Model", internalId: createInternalId()}); getUserClick('Add Model Clicked',{})}}>
                         + Add Model
                     </button>
@@ -23,10 +31,10 @@ export default function Models({sendModelData, models}){
 
                 {models && models.length > 0 ? <div className="vertical_selection_scroll w_100">
                     {models.map((model, index) => (
-                        <div key={index}>
+                        <div key={model.id || model.name || index}>
                             <div className="sidebar_box flex_dir_col align_start w_100" onClick={() => handleModelSelect(model)}>
-                                <div className="text_ellipsis"><span className="text_13 lh_18 color_white text_ellipsis">{model.name.split('/')[1] || model.name}</span></div>
-                                <div className="text_12 color_gray mt_4">by {model.name.includes('/') ? model.name.split('/')[0] : model.model_provider} · {model.model_provider}</div>
+                                <div className="text_ellipsis"><span className="text_13 lh_18 color_white text_ellipsis">{formatModelName(model.name)}</span></div>
+                                <div className="text_12 color_gray mt_4">by {model.name && model.name.includes('/') ? model.name.split('/')[0] : (model.model_provider || '-')} · {model.model_provider || '-'}</div>
                             </div>
                         </div>
                     ))}

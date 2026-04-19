@@ -88,5 +88,5 @@ class LocalLLM(BaseLlm):
         """
         return self.model
 
-    def verify_access_key(self, api_key):
+    def verify_access_key(self):
         return True

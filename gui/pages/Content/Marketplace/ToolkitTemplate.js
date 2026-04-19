@@ -20,10 +20,17 @@ export default function ToolkitTemplate({template, env}) {
   const [rightPanel, setRightPanel] = useState('tool_view')
   const [installed, setInstalled] = useState('')
   const [markdownContent, setMarkdownContent] = useState('');
+  const templateName = template?.name || '';
+  const templateDescription = template?.description || 'No description available.';
+  const templateTools = template?.tools || [];
 
   useEffect(() => {
-    if(template.is_installed && !window.location.href.toLowerCase().includes('marketplace')) {
-      checkToolkitUpdate(template.name).then((response) => {
+    if (!templateName) {
+      return;
+    }
+
+    if(template?.is_installed && !window.location.href.toLowerCase().includes('marketplace')) {
+      checkToolkitUpdate(templateName).then((response) => {
         setInstalled(response.data ? 'Update' :  'Installed');
       })
           .catch((error) => {
@@ -34,11 +41,11 @@ export default function ToolkitTemplate({template, env}) {
       setInstalled(window.location.href.toLowerCase().includes('marketplace') ? 'Sign in to install' : 'Install');
     }
     fetchReadme()
-  }, []);
+  }, [templateName, template]);
 
   function handleInstallClick() {
     if (window.location.href.toLowerCase().includes('marketplace')) {
-      localStorage.setItem('toolkit_to_install', template.name);
+      localStorage.setItem('toolkit_to_install', templateName);
       if (env === 'PROD') {
         window.open(`https://app.superagi.com/`, '_self');
       } else {
@@ -48,7 +55,7 @@ export default function ToolkitTemplate({template, env}) {
     }
 
     if(installed === "Update"){
-      updateMarketplaceToolTemplate(template.name)
+      updateMarketplaceToolTemplate(templateName)
           .then((response) => {
             toast.success("Toolkit Updated", {autoClose: 1800});
             setInstalled('Installed');
@@ -64,7 +71,7 @@ export default function ToolkitTemplate({template, env}) {
       return;
     }
 
-    installToolkitTemplate(template.name)
+    installToolkitTemplate(templateName)
       .then((response) => {
         toast.success("Toolkit installed", {autoClose: 1800});
         setInstalled('Installed');
@@ -79,8 +86,14 @@ export default function ToolkitTemplate({template, env}) {
   }
 
   function fetchReadme() {
+    if (!templateName) {
+      setRightPanel('tool_view');
+      setMarkdownContent('');
+      return;
+    }
+
     if (window.location.href.toLowerCase().includes('marketplace')) {
-      axios.get(`https://app.superagi.com/api/toolkits/marketplace/readme/${template.name}`)
+      axios.get(`https://app.superagi.com/api/toolkits/marketplace/readme/${templateName}`)
           .then((response) => {
             setMarkdownContent(response.data || '');
             setRightPanel(response.data ? 'overview' : 'tool_view');
@@ -115,9 +128,9 @@ export default function ToolkitTemplate({template, env}) {
             <div className={styles2.left_container}>
               <div style={{marginBottom: '15px'}}>
                 <Image style={{borderRadius: '25px', background: 'black'}} width={50} height={50}
-                       src={returnToolkitIcon(template.name)} alt="tool-icon"/>
+                       src={returnToolkitIcon(templateName)} alt="tool-icon"/>
               </div>
-              <span className={styles2.top_heading}>{template.name}</span>
+              <span className={styles2.top_heading}>{templateName}</span>
               <span style={{fontSize: '12px', marginTop: '15px',}} className={styles.tool_publisher}>By SuperAGI <Image
                 width={14} height={14} src="/images/is_verified.svg"
                 alt="is_verified"/>&nbsp;{'\u00B7'}&nbsp;<Image width={14} height={14}
@@ -134,10 +147,10 @@ export default function ToolkitTemplate({template, env}) {
                   <Image width={14} height={14} src="/images/upload_icon_dark.svg"
                          alt="upload-icon"/>}&nbsp;{installed}</button>
               <hr className={styles2.horizontal_line}/>
-              <span className={styles2.description_text}>{template.description}</span>
+              <span className={styles2.description_text}>{templateDescription}</span>
               <hr className={styles2.horizontal_line}/>
               <span style={{fontSize: '12px',}} className={styles.tool_publisher}>Last updated</span>
-              <span className={styles2.description_text}>{template.updated_at}</span>
+              <span className={styles2.description_text}>{template?.updated_at || '-'}</span>
             </div>
           </div>
           <div className="col-9" style={{paddingLeft: '8px'}}>
@@ -184,7 +197,7 @@ export default function ToolkitTemplate({template, env}) {
                 </div>}
               {rightPanel === 'tool_view' && <div>
                 <div style={{overflowY: 'scroll', height: '70vh'}}>
-                  {template.tools.map((value, index) => (
+                  {templateTools.map((value, index) => (
                     <div key={index} className={styles2.left_container}
                          style={{marginBottom: '5px', color: 'white', padding: '16px'}}>
                       <span className={styles2.description_text}>{value.name}</span><br/>

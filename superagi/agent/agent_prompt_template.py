@@ -17,8 +17,8 @@ class AgentPromptTemplate:
         return list_string
 
     @classmethod
-    def clean_prompt(cls, prompt):
-        prompt = re.sub('[ \t]+', ' ', prompt)
+    def clean_prompt(cls, prompt: str) -> str:
+        prompt = re.sub(r'[ \t]+', ' ', prompt)
         return prompt.strip()
 
     @classmethod

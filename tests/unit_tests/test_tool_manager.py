@@ -6,8 +6,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from superagi.tool_manager import parse_github_url, download_tool, load_tools_config, download_and_extract_tools, \
-    update_tools_json
+from superagi.tool_manager import parse_github_url, download_tool, download_marketplace_tool, load_tools_config, \
+    download_and_extract_tools, update_tools_json
 
 
 @pytest.fixture
@@ -43,6 +43,34 @@ def test_download_tool(mock_zip, mock_get):
 
     mock_get.assert_called_once_with('https://api.github.com/repos/owner/repo/zipball/main')
     mock_zip.assert_called_once_with('target_folder/tool.zip', 'r')
+
+
+@patch('requests.get')
+@patch('zipfile.ZipFile')
+def test_download_tool_rejects_zip_slip_member(mock_zip, mock_get):
+    mock_response = Mock()
+    mock_response.content = b'file content'
+    mock_get.return_value = mock_response
+    mock_zip.return_value.__enter__.return_value.namelist.return_value = [
+        'owner-repo-main/../../evil.py'
+    ]
+
+    with pytest.raises(ValueError, match='Unsafe archive member path detected'):
+        download_tool('https://github.com/owner/repo', 'target_folder')
+
+
+@patch('requests.get')
+@patch('zipfile.ZipFile')
+def test_download_marketplace_tool_rejects_zip_slip_member(mock_zip, mock_get):
+    mock_response = Mock()
+    mock_response.content = b'file content'
+    mock_get.return_value = mock_response
+    mock_zip.return_value.__enter__.return_value.namelist.return_value = [
+        'owner-repo-main/../../evil.py'
+    ]
+
+    with pytest.raises(ValueError, match='Unsafe archive member path detected'):
+        download_marketplace_tool('https://github.com/owner/repo/tree/main/tools', 'target_folder')
 
 
 @patch('json.load')

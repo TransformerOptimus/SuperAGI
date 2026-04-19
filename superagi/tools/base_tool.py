@@ -74,10 +74,34 @@ class BaseToolkitConfiguration:
 
 
 class BaseTool(BaseModel):
+    """Base class for all agent tools.
+    
+    A tool is an action an AI agent can execute. Tools have names, descriptions,
+    argument schemas, and configurable permissions.
+    
+    Attributes:
+        name: Unique identifier for the tool
+        description: Human-readable description of what the tool does
+        args_schema: Pydantic model defining the tool's input arguments
+        permission_required: Whether tool requires explicit permission to run
+    """
+    
     name: str = None
     description: str
     args_schema: Type[BaseModel] = None
     permission_required: bool = True
+    
+    def __init__(self, **data):
+        """Initialize the tool, validating required fields.
+        
+        Raises:
+            ValueError: If name or description is missing.
+        """
+        super().__init__(**data)
+        if not self.name:
+            raise ValueError("Tool 'name' is required")
+        if not self.description:
+            raise ValueError("Tool 'description' is required")
     toolkit_config: BaseToolkitConfiguration = BaseToolkitConfiguration()
 
     class Config:

@@ -25,11 +25,19 @@ class AgentPromptBuilder:
         """Add tools to the prompt.
 
         Args:
-            tools (List[BaseTool]): The list of tools.
-            add_finish (bool): Whether to add finish tool or not.
+            tools (List[BaseTool]): The list of tools available to the agent.
+            add_finish (bool): Whether to add the finish tool for signaling completion.
+            
+        Returns:
+            str: Formatted string with all available tools.
+            
+        Raises:
+            ValueError: If tools list is empty.
         """
+        if not tools:
+            raise ValueError("Cannot add tools to prompt: tools list is empty")
+        
         final_string = ""
-        print(tools)
         for i, item in enumerate(tools):
             final_string += f"{i + 1}. {cls._generate_tool_string(item)}\n"
         finish_description = (
@@ -58,9 +66,17 @@ class AgentPromptBuilder:
         return output
     
     @classmethod
-    def clean_prompt(cls, prompt):
-        prompt = re.sub('[ \t]+', ' ', prompt)
-        return prompt.strip()
+    def clean_prompt(cls, prompt: str) -> str:
+        """Clean and normalize prompt text.
+        
+        Args:
+            prompt (str): The raw prompt text.
+            
+        Returns:
+            str: Cleaned prompt with normalized whitespace.
+        """
+        prompt = re.sub(r'[ \t]+', ' ', prompt)  # Collapse multiple spaces/tabs
+        return prompt.strip()  # Remove leading/trailing whitespace
 
     @classmethod
     def replace_main_variables(cls, super_agi_prompt: str, goals: List[str], instructions: List[str], constraints: List[str],

@@ -65,6 +65,8 @@ class ToolExecutor:
         return output
 
     def clean_tool_args(self, args):
+        if not isinstance(args, dict):
+            return {}
         parsed_args = {}
         for key in args.keys():
             parsed_args[key] = args[key]

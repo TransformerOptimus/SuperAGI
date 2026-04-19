@@ -7,13 +7,18 @@ from superagi.config.config import get_config
 from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
 
-MAX_RETRY_ATTEMPTS = 5
-MIN_WAIT = 30 # Seconds
-MAX_WAIT = 300 # Seconds
+# Retry configuration for API calls
+MAX_RETRY_ATTEMPTS = 5  # Maximum number of retry attempts for rate-limited or timeout errors
+MIN_WAIT = 30  # Minimum wait time between retries in seconds
+MAX_WAIT = 300  # Maximum wait time between retries in seconds
+
+# Supported OpenAI models
+SUPPORTED_MODELS = ["gpt-4", "gpt-3.5-turbo", "gpt-4-turbo-preview"]
 
 def custom_retry_error_callback(retry_state):
-    logger.info("OpenAi Exception:", retry_state.outcome.exception())
-    return {"error": "ERROR_OPENAI", "message": "Open ai exception: "+str(retry_state.outcome.exception())}
+    """Callback function when retry limit is exceeded"""
+    logger.error(f"OpenAI API Exception (max retries exceeded): {retry_state.outcome.exception()}")
+    return {"error": "ERROR_OPENAI", "message": f"OpenAI exception: {str(retry_state.outcome.exception())}"}
 
 
 class OpenAi(BaseLlm):
@@ -21,22 +26,30 @@ class OpenAi(BaseLlm):
                  frequency_penalty=0,
                  presence_penalty=0, number_of_results=1):
         """
+        Initialize OpenAI LLM client.
+        
         Args:
             api_key (str): The OpenAI API key.
-            model (str): The model.
-            temperature (float): The temperature.
-            max_tokens (int): The maximum number of tokens.
-            top_p (float): The top p.
-            frequency_penalty (float): The frequency penalty.
-            presence_penalty (float): The presence penalty.
-            number_of_results (int): The number of results.
+            model (str): The model name (e.g., 'gpt-4', 'gpt-3.5-turbo').
+            temperature (float): Sampling temperature (0-2). Higher = more random.
+            max_tokens (int): The maximum number of tokens in response.
+            top_p (float): Nucleus sampling parameter (0-1).
+            frequency_penalty (float): Penalty for token frequency (-2 to 2).
+            presence_penalty (float): Penalty for token presence (-2 to 2).
+            number_of_results (int): Number of completion choices to generate.
+            
+        Raises:
+            ValueError: If model is not supported.
         """
+        if model not in SUPPORTED_MODELS:
+            logger.warning(f"Model '{model}' not in official supported list: {SUPPORTED_MODELS}. Proceeding anyway.")
+        
         self.model = model
-        self.temperature = temperature
+        self.temperature = max(0, min(2, temperature))  # Clamp temperature to valid range
         self.max_tokens = max_tokens
-        self.top_p = top_p
-        self.frequency_penalty = frequency_penalty
-        self.presence_penalty = presence_penalty
+        self.top_p = max(0, min(1, top_p))  # Clamp top_p to valid range
+        self.frequency_penalty = max(-2, min(2, frequency_penalty))  # Clamp penalty
+        self.presence_penalty = max(-2, min(2, presence_penalty))  # Clamp penalty
         self.number_of_results = number_of_results
         self.api_key = api_key
         openai.api_key = api_key

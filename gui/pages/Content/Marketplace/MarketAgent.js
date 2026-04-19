@@ -14,28 +14,41 @@ export default function MarketAgent() {
   useEffect(() => {
     loadingTextEffect('Loading Agent Templates', setLoadingText, 500);
 
-    if (window.location.href.toLowerCase().includes('marketplace')) {
-      setShowMarketplace(true);
-      axios.get('https://app.superagi.com/api/agent_templates/marketplace/list')
-        .then((response) => {
+    let isMounted = true;
+    const isMarketplaceRoute = typeof window !== 'undefined' && window.location.href.toLowerCase().includes('marketplace');
+
+    const loadAgentTemplates = async () => {
+      try {
+        if (isMarketplaceRoute) {
+          setShowMarketplace(true);
+          const response = await axios.get('https://app.superagi.com/api/agent_templates/marketplace/list');
           const data = response.data || [];
+          if (isMounted) {
+            setAgentTemplates(data);
+            setIsLoading(false);
+          }
+          return;
+        }
+
+        const response = await fetchAgentTemplateList();
+        const data = response.data || [];
+        if (isMounted) {
           setAgentTemplates(data);
           setIsLoading(false);
-        })
-        .catch((error) => {
-          console.error('Error fetching agent templates:', error);
-        });
-    } else {
-      fetchAgentTemplateList()
-        .then((response) => {
-          const data = response.data || [];
-          setAgentTemplates(data);
+        }
+      } catch (error) {
+        if (isMounted) {
           setIsLoading(false);
-        })
-        .catch((error) => {
-          console.error('Error fetching agent templates:', error);
-        });
-    }
+        }
+        console.error('Error fetching agent templates:', error);
+      }
+    };
+
+    loadAgentTemplates();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   function handleTemplateClick(item) {

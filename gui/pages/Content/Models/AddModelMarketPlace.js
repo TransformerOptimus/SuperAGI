@@ -15,11 +15,14 @@ export default function AddModelMarketPlace({ template, getModels, sendModelData
     const [disableInstall, setDisableInstall] = useState(false);
 
     useEffect(() => {
-        if(modelVersion === '' && modelEndpoint === '')
-            setDisableInstall(true)
-        else
-            setDisableInstall(false)
-    },[modelVersion, modelEndpoint])
+        const requiresEndpoint = templateData?.provider === 'Hugging Face';
+        const requiresVersion = templateData?.provider === 'Replicate';
+
+        setDisableInstall(
+            (requiresEndpoint && modelEndpoint.trim() === '') ||
+            (requiresVersion && modelVersion.trim() === '')
+        );
+    },[templateData, modelVersion, modelEndpoint])
 
     useEffect(()=>{
         console.log(templateData)
@@ -27,7 +30,7 @@ export default function AddModelMarketPlace({ template, getModels, sendModelData
     },[])
 
     const checkModelProvider = async () => {
-        if(templateData){
+        if(templateData?.provider){
             const response = await fetchApiKey(templateData.provider);
             console.log(response.data)
             if(response.data.length === 0) {
@@ -43,6 +46,7 @@ export default function AddModelMarketPlace({ template, getModels, sendModelData
     }
 
     const storeModelDetails = () => {
+        setIsLoading(true)
         storeModel(templateData.model_name, templateData.description, modelEndpoint, providerId, modelTokenLimit, "Marketplace", modelVersion).then((response) =>{
             setIsLoading(false)
             let data = response.data
@@ -119,7 +123,8 @@ export default function AddModelMarketPlace({ template, getModels, sendModelData
                         </div>
                     </div>}
 
-                    <button className="primary_button w_fit_content align_self_end mt_24" disabled={tokenError}
+                        <button className="primary_button w_fit_content align_self_end mt_24"
+                            disabled={tokenError || disableInstall || isLoading}
                             onClick={() => storeModelDetails()}>Install</button>
                 </div>}
             </div>

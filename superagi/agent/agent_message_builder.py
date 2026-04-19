@@ -37,6 +37,7 @@ class AgentLlmMessageBuilder:
         max_output_token_limit = int(get_config("MAX_TOOL_TOKEN_LIMIT", 800))
         messages = [{"role": "system", "content": prompt}]
         if history_enabled:
+            completion_prompt = completion_prompt or ""
             messages.append({"role": "system", "content": f"The current time and date is {time.strftime('%c')}"})
             base_token_limit = TokenCounter.count_message_tokens(messages, self.llm_model)
             full_message_history = [{'role': agent_feed.role, 'content': agent_feed.feed, 'chat_id': agent_feed.id}
