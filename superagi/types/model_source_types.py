@@ -10,11 +10,13 @@ class ModelSourceType(Enum):
 
     @classmethod
     def get_model_source_type(cls, name):
-        name = name.upper().replace(" ", "")
+        if name is None:
+            raise ValueError("Model source type cannot be None.")
+        name = str(name).upper().replace(" ", "")
         for member in cls.__members__:
             if name == member.upper():
                 return cls[member]
-        raise ValueError(f"{name} is not a valid vector store name.")
+        raise ValueError(f"{name} is not a valid model source name.")
 
     @classmethod
     def get_model_source_from_model(cls, model_name: str):

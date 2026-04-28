@@ -119,7 +119,6 @@ class AgentExecutor:
                                                                              organisation_id=organisation.id)
                                                                , agent_id=agent.id,
                                                                agent_execution_id=agent_execution_id, memory=memory)
-            print(get_model(model=agent_config["model"], api_key=model_api_key, organisation_id=organisation.id))
             iteration_step_handler.execute_step()
         elif agent_workflow_step.action_type == AgentWorkflowStepAction.WAIT_STEP.value:
             (AgentWaitStepHandler(session=session, agent_id=agent.id,
@@ -168,7 +167,7 @@ class AgentExecutor:
                 AgentWorkflowStep.id == agent_execution.current_agent_step_id).first()
             step_wait = AgentWorkflowStepWait.find_by_id(session, workflow_step.action_reference_id)
             if step_wait is not None:
-                wait_time = step_wait.delay if not None else 0
+                wait_time = step_wait.delay if step_wait.delay is not None else 0
                 logger.info(f"Agent Execution ID: {agent_execution.id}")
                 logger.info(f"Wait time: {wait_time}")
                 logger.info(f"Wait begin time: {step_wait.wait_begin_time}")

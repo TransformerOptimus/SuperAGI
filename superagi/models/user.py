@@ -34,5 +34,5 @@ class User(DBBaseModel):
             str: String representation of the User object.
         """
 
-        return f"User(id={self.id}, name='{self.name}', email='{self.email}', password='{self.password}'," \
-               f"organisation_id={self.organisation_id}, first_login_source={self.first_login_source})"
+         return f"User(id={self.id}, name='{self.name}', email='{self.email}', password='***'," \
+             f"organisation_id={self.organisation_id}, first_login_source={self.first_login_source})"

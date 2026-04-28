@@ -37,8 +37,10 @@ class AgentWorkflowStepTool(DBBaseModel):
             str: String representation of the AgentWorkflowStep.
         """
 
-        return f"AgentWorkflowStep(id={self.id}, " \
-               f"prompt='{self.tool_name}', agent_id={self.tool_instruction})"
+     return f"AgentWorkflowStepTool(id={self.id}, tool_name='{self.tool_name}', unique_id='{self.unique_id}', " \
+         f"history_enabled={self.history_enabled})"
+
+    __str__ = __repr__
     
     def to_dict(self):
         """

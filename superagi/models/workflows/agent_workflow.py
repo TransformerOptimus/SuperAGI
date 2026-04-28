@@ -33,6 +33,8 @@ class AgentWorkflow(DBBaseModel):
         return f"AgentWorkflow(id={self.id}, name='{self.name}', " \
                f"description='{self.description}')"
 
+    __str__ = __repr__
+
     def to_dict(self):
         """
             Converts the AgentWorkflow object to a dictionary.

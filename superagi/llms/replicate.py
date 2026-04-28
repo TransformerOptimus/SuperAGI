@@ -4,6 +4,8 @@ from superagi.config.config import get_config
 from superagi.lib.logger import logger
 from superagi.llms.base_llm import BaseLlm
 
+REQUEST_TIMEOUT = 20
+
 
 class Replicate(BaseLlm):
     def __init__(self, api_key, model: str = None, version: str = None, max_length=1000, temperature=0.7,
@@ -103,7 +105,7 @@ class Replicate(BaseLlm):
             bool: True if the access key is valid, False otherwise.
         """
         headers = {"Authorization": "Token " + self.api_key}
-        response = requests.get("https://api.replicate.com/v1/collections", headers=headers)
+        response = requests.get("https://api.replicate.com/v1/collections", headers=headers, timeout=REQUEST_TIMEOUT)
 
         # If the request is successful, status code will be 200
         if response.status_code == 200:

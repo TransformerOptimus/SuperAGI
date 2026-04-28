@@ -175,15 +175,17 @@ class InstagramTool(BaseTool):
     def get_req_insta_id(self,root_api_url,facebook_page_id,meta_user_access_token):
         url_to_get_acc_id=f"{root_api_url}{facebook_page_id}?fields=instagram_business_account&access_token={meta_user_access_token}"
         response=requests.get(
-            url_to_get_acc_id
+            url_to_get_acc_id,
+            timeout=20
         )
 
         return response
     
     def post_media_container_id(self,root_api_url,insta_business_account_id,image_url,encoded_caption,meta_user_access_token):
         url_to_create_media_container=f"{root_api_url}{insta_business_account_id}/media?image_url={image_url}&caption={encoded_caption}&access_token={meta_user_access_token}"
-        response = requests.post(       
-            url_to_create_media_container
+        response = requests.post(
+            url_to_create_media_container,
+            timeout=20
         )
 
         return response
@@ -191,7 +193,8 @@ class InstagramTool(BaseTool):
     def post_media(self,root_api_url,insta_business_account_id,container_ID,meta_user_access_token):
         url_to_post_media_container=f"{root_api_url}{insta_business_account_id}/media_publish?creation_id={container_ID}&access_token={meta_user_access_token}"
         response = requests.post(
-            url_to_post_media_container
+            url_to_post_media_container,
+            timeout=20
         )
 
         return response

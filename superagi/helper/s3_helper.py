@@ -6,6 +6,7 @@ from fastapi import HTTPException
 from superagi.config.config import get_config
 from superagi.lib.logger import logger
 from urllib.parse import unquote
+from pathlib import Path
 import json
 
 
@@ -47,6 +48,9 @@ class S3Helper:
             None
         """
         try:
+            normalized_path = Path(path).as_posix().lstrip("/")
+            if ".." in Path(normalized_path).parts:
+                raise HTTPException(status_code=400, detail="Invalid S3 path")
             self.s3.upload_fileobj(file, self.bucket_name, path)
             logger.info("File uploaded to S3 successfully!")
         except Exception:

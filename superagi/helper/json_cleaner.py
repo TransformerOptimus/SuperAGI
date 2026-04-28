@@ -34,6 +34,8 @@ class JsonCleaner:
         Returns:
             str: The extracted json section.
         """
+        if not input_str:
+            return input_str
         try:
             first_brace_index = input_str.index("{")
             final_json = input_str[first_brace_index:]
@@ -55,6 +57,8 @@ class JsonCleaner:
         Returns:
             str: The extracted json section.
         """
+        if not input_str:
+            return input_str
         try:
             first_brace_index = input_str.index("[")
             final_json = input_str[first_brace_index:]
@@ -89,6 +93,8 @@ class JsonCleaner:
         Returns:
             str: The json string with balanced braces.
         """
+        if not json_string:
+            return json_string
         open_braces_count = json_string.count('{')
         closed_braces_count = json_string.count('}')
 

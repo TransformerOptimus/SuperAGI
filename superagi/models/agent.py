@@ -6,7 +6,7 @@ import json
 from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy import or_
 
-from superagi.lib.logger import logger
+from superagi.lib.logger import logger 
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.agent_template import AgentTemplate
 from superagi.models.agent_template_config import AgentTemplateConfig
@@ -50,6 +50,8 @@ class Agent(DBBaseModel):
         return f"Agent(id={self.id}, name='{self.name}', project_id={self.project_id}, " \
                f"description='{self.description}', agent_workflow_id={self.agent_workflow_id}," \
                f"is_deleted='{self.is_deleted}')"
+
+    __str__ = __repr__
 
     @classmethod
     def fetch_configuration(cls, session, agent_id: int):
@@ -113,7 +115,10 @@ class Agent(DBBaseModel):
         elif key in ["project_id", "memory_window", "max_iterations", "iteration_interval"]:
             return int(value)
         elif key in ["goal", "constraints", "instruction", "is_deleted"]:
-            return eval(value)
+            try:
+                return json.loads(value)
+            except (TypeError, json.JSONDecodeError):
+                return ast.literal_eval(value)
         elif key == "tools":
             return list(ast.literal_eval(value))
 

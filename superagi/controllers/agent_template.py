@@ -1,4 +1,5 @@
 from datetime import datetime
+import ast
 
 from fastapi import APIRouter
 from fastapi import HTTPException, Depends
@@ -248,7 +249,7 @@ def save_agent_as_template(agent_execution_id: str,
             if config.key not in AgentTemplate.main_keys():
                 continue
             if config.key == "tools":
-                config_value = str(Tool.convert_tool_ids_to_names(db, eval(config.value)))
+                config_value = str(Tool.convert_tool_ids_to_names(db, ast.literal_eval(config.value)))
             agent_template_config = AgentTemplateConfig(agent_template_id=agent_template.id, key=config.key,
                                                         value=config_value)
             db.session.add(agent_template_config)       
@@ -463,7 +464,7 @@ def publish_template(agent_execution_id: str, organisation=Depends(get_user_orga
         if agent_execution_configuration.key not in main_keys:
             continue
         if agent_execution_configuration.key == "tools":
-            config_value = str(Tool.convert_tool_ids_to_names(db, eval(agent_execution_configuration.value)))
+            config_value = str(Tool.convert_tool_ids_to_names(db, ast.literal_eval(agent_execution_configuration.value)))
         agent_template_config = AgentTemplateConfig(agent_template_id=agent_template.id, key=agent_execution_configuration.key,
                                                     value=config_value)
         db.session.add(agent_template_config)

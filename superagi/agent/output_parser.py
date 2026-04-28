@@ -3,9 +3,15 @@ from abc import ABC, abstractmethod
 from typing import Dict, NamedTuple, List
 import re
 import ast
-import json
 from superagi.helper.json_cleaner import JsonCleaner
 from superagi.lib.logger import logger
+
+
+def _safe_parse_response(response: str):
+    try:
+        return json.loads(response)
+    except json.JSONDecodeError:
+        return ast.literal_eval(response)
 
 
 class AgentGPTAction(NamedTuple):
@@ -36,7 +42,7 @@ class AgentSchemaOutputParser(BaseOutputParser):
         # OpenAI returns `str(content_dict)`, literal_eval reverses this
         try:
             logger.debug("AgentSchemaOutputParser: ", response)
-            response_obj = ast.literal_eval(response)
+            response_obj = _safe_parse_response(response)
             args = response_obj['tool']['args'] if 'args' in response_obj['tool'] else {}
             return AgentGPTAction(
                 name=response_obj['tool']['name'],
@@ -59,7 +65,7 @@ class AgentSchemaToolOutputParser(BaseOutputParser):
         # OpenAI returns `str(content_dict)`, literal_eval reverses this
         try:
             logger.debug("AgentSchemaOutputParser: ", response)
-            response_obj = ast.literal_eval(response)
+            response_obj = _safe_parse_response(response)
             args = response_obj['args'] if 'args' in response_obj else {}
             return AgentGPTAction(
                 name=response_obj['name'],

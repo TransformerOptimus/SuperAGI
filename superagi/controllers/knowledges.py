@@ -2,6 +2,7 @@ from fastapi_sqlalchemy import db
 from fastapi import HTTPException, Depends, Query, status
 from fastapi import APIRouter
 from datetime import datetime
+import ast
 from superagi.config.config import get_config
 from superagi.helper.auth import get_user_organisation
 from superagi.models.knowledges import Knowledges
@@ -154,7 +155,7 @@ def install_selected_knowledge(knowledge_name: str, vector_db_index_id: int, org
 def uninstall_selected_knowledge(knowledge_name: str, organisation = Depends(get_user_organisation)):
     knowledge = db.session.query(Knowledges).filter(Knowledges.name == knowledge_name, Knowledges.organisation_id == organisation.id).first()
     knowledge_config = KnowledgeConfigs.get_knowledge_config_from_knowledge_id(db.session, knowledge.id)
-    vector_ids = eval(knowledge_config["vector_ids"])
+    vector_ids = ast.literal_eval(knowledge_config["vector_ids"])
     vector_db_index = VectordbIndices.get_vector_index_from_id(db.session, knowledge.vector_db_index_id)
     vector = Vectordbs.get_vector_db_from_id(db.session, vector_db_index.vector_db_id)
     db_creds = VectordbConfigs.get_vector_db_config_from_db_id(db.session, vector.id)

@@ -21,3 +21,8 @@ class Webhooks(DBBaseModel):
     headers=Column(JSON)
     is_deleted=Column(Boolean)
     filters=Column(JSON)
+
+    def __repr__(self):
+        return f"Webhooks(id={self.id}, name={self.name}, org_id={self.org_id}, url={self.url})"
+
+    __str__ = __repr__

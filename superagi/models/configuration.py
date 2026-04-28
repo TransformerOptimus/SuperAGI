@@ -7,7 +7,6 @@ from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 from superagi.models.models_config import ModelsConfig
 from superagi.models.models import Models
-from superagi.helper.encyption_helper import decrypt_data
 
 class Configuration(DBBaseModel):
     """
@@ -37,6 +36,8 @@ class Configuration(DBBaseModel):
 
         return f"Config(id={self.id}, organisation_id={self.organisation_id}, key={self.key}, value={self.value})"
 
+    __str__ = __repr__
+
 
     @classmethod
     def fetch_configuration(cls, session, organisation_id: int, key: str, default_value=None) -> str:
@@ -56,9 +57,9 @@ class Configuration(DBBaseModel):
 
         configuration = session.query(Configuration).filter_by(organisation_id=organisation_id, key=key).first()
         if key == "model_api_key":
-            return decrypt_data(configuration.value) if configuration else default_value
+            return decrypt_data(configuration.value) if configuration and configuration.value else default_value
         else:
-            return configuration.value if configuration else default_value
+            return configuration.value if configuration and configuration.value else default_value
 
     @classmethod
     def fetch_configurations(cls, session, organisation_id: int, key: str, model: str, default_value=None) -> str:
@@ -81,9 +82,9 @@ class Configuration(DBBaseModel):
 
         configuration = session.query(ModelsConfig.provider, ModelsConfig.api_key).filter(ModelsConfig.org_id == organisation_id, ModelsConfig.id == model_provider.model_provider_id).first()
         if key == "model_api_key":
-            return decrypt_data(configuration.api_key) if configuration else default_value
+            return decrypt_data(configuration.api_key) if configuration and configuration.api_key else default_value
         else:
-            return configuration.provider if configuration else default_value
+            return configuration.provider if configuration and configuration.provider else default_value
 
     @classmethod
     def fetch_value_by_agent_id(cls, session, agent_id: int, key: str):

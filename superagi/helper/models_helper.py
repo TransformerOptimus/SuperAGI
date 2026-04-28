@@ -5,7 +5,7 @@ class ModelsHelper:
     def validate_end_point(model_api_key, end_point, model_provider):
         response = {"success": True}
 
-        if (model_provider == 'Hugging Face'):
+        if model_provider == 'Hugging Face' and end_point:
             try:
                 result = HuggingFace(api_key=model_api_key, end_point=end_point).verify_end_point()
             except Exception as e:
@@ -13,6 +13,9 @@ class ModelsHelper:
                 response['error'] = str(e)
             else:
                 response['result'] = result
+        elif model_provider == 'Hugging Face':
+            response['success'] = False
+            response['error'] = 'Missing end_point'
 
         return response
 

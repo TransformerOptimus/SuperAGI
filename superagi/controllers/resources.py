@@ -1,6 +1,7 @@
 import datetime
 import os
 from pathlib import Path
+from uuid import uuid4
 
 import boto3
 from botocore.exceptions import NoCredentialsError
@@ -71,13 +72,16 @@ async def upload(agent_id: int, file: UploadFile = File(...), name=Form(...), si
     file_path = os.path.join(save_directory, file.filename)
     if storage_type == StorageType.FILE:
         os.makedirs(save_directory, exist_ok=True)
+        safe_file_name = Path(file.filename).name
+        file_path = os.path.join(save_directory, f"{uuid4().hex}_{safe_file_name}")
         with open(file_path, "wb") as f:
             contents = await file.read()
             f.write(contents)
             file.file.close()
     elif storage_type == StorageType.S3:
         bucket_name = get_config("BUCKET_NAME")
-        file_path = 'resources' + file_path
+        safe_file_name = Path(file.filename).name
+        file_path = 'resources' + os.path.join(save_directory, f"{uuid4().hex}_{safe_file_name}")
         try:
             s3.upload_fileobj(file.file, bucket_name, file_path)
             logger.info("File uploaded successfully!")

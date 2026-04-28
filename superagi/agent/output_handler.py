@@ -1,3 +1,4 @@
+import ast
 import json
 from superagi.agent.common_types import TaskExecutorResponse, ToolExecutorResponse
 from superagi.agent.output_parser import AgentSchemaOutputParser
@@ -13,6 +14,13 @@ from superagi.vector_store.base import VectorStore
 import numpy as np
 
 from superagi.models.agent_execution_permission import AgentExecutionPermission
+
+
+def _safe_parse_task_payload(task_payload: str):
+    try:
+        return json.loads(task_payload)
+    except json.JSONDecodeError:
+        return ast.literal_eval(task_payload)
 
 
 class ToolOutputHandler:
@@ -146,7 +154,7 @@ class TaskOutputHandler:
 
     def handle(self, session, assistant_reply):
         assistant_reply = JsonCleaner.extract_json_array_section(assistant_reply)
-        tasks = eval(assistant_reply)
+        tasks = _safe_parse_task_payload(assistant_reply)
         tasks = np.array(tasks).flatten().tolist()
         for task in reversed(tasks):
             self.task_queue.add_task(task)
@@ -177,7 +185,7 @@ class ReplaceTaskOutputHandler:
 
     def handle(self, session, assistant_reply):
         assistant_reply = JsonCleaner.extract_json_array_section(assistant_reply)
-        tasks = eval(assistant_reply)
+        tasks = _safe_parse_task_payload(assistant_reply)
         self.task_queue.clear_tasks()
         for task in reversed(tasks):
             self.task_queue.add_task(task)

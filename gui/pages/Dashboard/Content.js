@@ -15,6 +15,7 @@ import Models from "../Content/Models/Models";
 import ModelDetails from "../Content/Models/ModelDetails";
 import Image from "next/image";
 import {EventBus} from "@/utils/eventBus";
+
 import {
   getAgents,
   getToolKit,

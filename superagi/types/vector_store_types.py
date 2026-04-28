@@ -11,7 +11,9 @@ class VectorStoreType(Enum):
 
     @classmethod
     def get_vector_store_type(cls, store):
-        store = store.upper()
+        if store is None:
+            raise ValueError("Vector store type cannot be None.")
+        store = str(store).upper().strip()
         if store in cls.__members__:
             return cls[store]
         raise ValueError(f"{store} is not a valid vector store name.")

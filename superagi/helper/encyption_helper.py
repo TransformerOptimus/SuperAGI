@@ -57,7 +57,8 @@ def is_encrypted(value):
     #key = get_config("ENCRYPTION_KEY")
     try:
         f = Fernet(key)
-        f.decrypt(value)
+        value_bytes = value.encode("utf-8") if isinstance(value, str) else value
+        f.decrypt(value_bytes)
         return True
     except (InvalidToken, InvalidSignature):
         return False

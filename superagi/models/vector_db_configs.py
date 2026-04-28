@@ -42,6 +42,7 @@ class VectordbConfigs(DBBaseModel):
             vector_db_config = VectordbConfigs(vector_db_id=vector_db_id, key=key, value=value)
             session.add(vector_db_config)
             session.commit()
+        return db_creds
 
     @classmethod
     def delete_vector_db_configs(cls, session, vector_db_id):

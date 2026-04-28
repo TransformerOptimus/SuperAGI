@@ -66,11 +66,16 @@ class BaseToolkitConfiguration:
 
     def get_tool_config(self, key: str):
         # Default implementation of the tool configuration retrieval logic
-        with open("config.yaml") as file:
-            config = yaml.safe_load(file)
-
-        # Retrieve the value associated with the given key
-        return config.get(key)
+        try:
+            with open("config.yaml") as file:
+                config = yaml.safe_load(file)
+            if config is None:
+                config = {}
+            # Retrieve the value associated with the given key
+            return config.get(key)
+        except (FileNotFoundError, IOError) as e:
+            logger.error(f"Error loading config.yaml: {e}")
+            return None
 
 
 class BaseTool(BaseModel):

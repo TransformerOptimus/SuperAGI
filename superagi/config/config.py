@@ -16,9 +16,16 @@ class Config(BaseSettings):
     def load_config(cls, config_file: str) -> dict:
         # If config file exists, read it
         if os.path.exists(config_file):
-            with open(config_file, "r") as file:
-                config_data = yaml.safe_load(file)
-            if config_data is None:
+            try:
+                with open(config_file, "r") as file:
+                    config_data = yaml.safe_load(file)
+                if config_data is None:
+                    config_data = {}
+                elif not isinstance(config_data, dict):
+                    logger.warning(f"Config file {config_file} does not contain a valid YAML dictionary")
+                    config_data = {}
+            except (yaml.YAMLError, IOError) as e:
+                logger.error(f"Error loading config file {config_file}: {e}")
                 config_data = {}
         else:
             # If config file doesn't exist, prompt for credentials and create new file
@@ -26,8 +33,11 @@ class Config(BaseSettings):
         + "\nConfig file not found. Enter required keys and values."
         + "\033[0m\033[0m")
             config_data = {}
-            with open(config_file, "w") as file:
-                yaml.dump(config_data, file, default_flow_style=False)
+            try:
+                with open(config_file, "w") as file:
+                    yaml.dump(config_data, file, default_flow_style=False)
+            except IOError as e:
+                logger.error(f"Error creating config file {config_file}: {e}")
 
         # Merge environment variables and config data
         env_vars = dict(os.environ)

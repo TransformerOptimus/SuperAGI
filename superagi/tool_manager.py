@@ -14,6 +14,21 @@ def parse_github_url(github_url):
     return f"{owner}/{repo}/{branch}"
 
 
+def _safe_extract_member(zip_file, member, target_folder):
+    if '/' not in member:
+        return
+    target_name = member.split('/', 1)[1]
+    normalized_path = os.path.abspath(os.path.join(target_folder, target_name))
+    if not normalized_path.startswith(os.path.abspath(target_folder) + os.sep):
+        return
+    if member.endswith('/'):
+        os.makedirs(normalized_path, exist_ok=True)
+        return
+    os.makedirs(os.path.dirname(normalized_path), exist_ok=True)
+    with open(normalized_path, 'wb') as outfile, zip_file.open(member) as infile:
+        outfile.write(infile.read())
+
+
 def download_tool(tool_url, target_folder):
     parsed_url = parse_github_url(tool_url)
     parts = parsed_url.split("/")
@@ -30,22 +45,7 @@ def download_tool(tool_url, target_folder):
     with zipfile.ZipFile(tool_zip_file_path, 'r') as z:
         members = [m for m in z.namelist() if m.startswith(f"{owner}-{repo}") and f"{path}" in m]
         for member in members:
-            archive_folder = f"{owner}-{repo}"
-            target_name = member.replace(f"{archive_folder}/", "", 1)
-            # Skip the unique hash folder while extracting:
-            segments = target_name.split('/', 1)
-            if len(segments) > 1:
-                target_name = segments[1]
-            else:
-                continue
-            target_path = os.path.join(target_folder, target_name)
-            if not target_name:
-                continue
-            if member.endswith('/'):
-                os.makedirs(target_path, exist_ok=True)
-            else:
-                with open(target_path, 'wb') as outfile, z.open(member) as infile:
-                    outfile.write(infile.read())
+            _safe_extract_member(z, member, target_folder)
 
     os.remove(tool_zip_file_path)
 
@@ -62,11 +62,15 @@ def download_marketplace_tool(tool_url, target_folder):
 
     with zipfile.ZipFile(tool_zip_file_path, 'r') as z:
         for member in z.namelist():
-            archive_folder, target_name = member.split('/', 1)
-            target_name = os.path.join(target_folder, target_name)
+            if '/' not in member:
+                continue
+            target_name = os.path.abspath(os.path.join(target_folder, member.split('/', 1)[1]))
+            if not target_name.startswith(os.path.abspath(target_folder) + os.sep):
+                continue
             if member.endswith('/'):
                 os.makedirs(target_name, exist_ok=True)
             elif not target_name.endswith('.md'):
+                os.makedirs(os.path.dirname(target_name), exist_ok=True)
                 with open(target_name, 'wb') as outfile, z.open(member) as infile:
                     outfile.write(infile.read())
 

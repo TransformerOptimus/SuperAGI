@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+from json import JSONDecodeError
 
 from superagi.helper.time_helper import get_time_difference
 from superagi.lib.logger import logger
@@ -40,7 +41,7 @@ def parse_feed(feed):
 
             return {"role": "assistant", "feed": final_output, "updated_at": feed.updated_at,
                     "time_difference": feed.time_difference}
-        except Exception:
+        except JSONDecodeError:
             return {"role": "assistant", "feed": feed.feed, "updated_at": feed.updated_at,
                 "time_difference": feed.time_difference}
 

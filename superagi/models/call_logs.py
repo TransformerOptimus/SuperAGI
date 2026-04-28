@@ -34,3 +34,5 @@ class CallLogs(DBBaseModel):
                f"tool_used={self.tool_used}, " \
                f"model={self.model}, " \
                f"org_id={self.org_id})"
+
+    __str__ = __repr__

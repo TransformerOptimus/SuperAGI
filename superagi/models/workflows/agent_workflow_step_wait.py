@@ -35,8 +35,10 @@ class AgentWorkflowStepWait(DBBaseModel):
             str: String representation of the WaitBlockStep.
         """
 
-        return f"WaitBlockStep(id={self.id}, name='{self.name}', delay='{self.delay}', " \
-               f"wait_begin_time='{self.wait_begin_time}'"
+     return f"AgentWorkflowStepWait(id={self.id}, name='{self.name}', delay={self.delay}, " \
+         f"wait_begin_time='{self.wait_begin_time}')"
+
+    __str__ = __repr__
 
     def to_dict(self):
         """

@@ -37,6 +37,9 @@ class OpenAiDalle(BaseImageLlm):
         Returns:
             dict: The response.
         """
+        if int(size) <= 0:
+            raise ValueError("size must be a positive integer")
+
         response = openai.Image.create(
             prompt=prompt,
             n=self.number_of_results,

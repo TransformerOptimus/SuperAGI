@@ -30,6 +30,8 @@ class Organisation(DBBaseModel):
 
         return f"Organisation(id={self.id}, name='{self.name}')"
 
+    __str__ = __repr__
+
     @classmethod
     def find_or_create_organisation(cls, session, user):
         """

@@ -4,6 +4,7 @@ from superagi.models.webhooks import Webhooks
 from superagi.models.webhook_events import WebhookEvents
 import requests
 import json
+from urllib.parse import urlparse
 from superagi.lib.logger import logger
 
 class WebHookManager:
@@ -24,8 +25,12 @@ class WebHookManager:
                 error=None
                 request=None
                 status='sent'
+                parsed_url = urlparse(webhook_obj.url.strip())
+                if parsed_url.scheme not in {"http", "https"} or not parsed_url.netloc:
+                    error = "Invalid webhook URL"
                 try:
-                    request = requests.post(webhook_obj.url.strip(), data=json.dumps(webhook_obj_body), headers=webhook_obj.headers)
+                    if error is None:
+                        request = requests.post(webhook_obj.url.strip(), data=json.dumps(webhook_obj_body), headers=webhook_obj.headers, timeout=10)
                 except Exception as e:
                     logger.error(f"Exception occured in webhooks {e}")
                     error=str(e)

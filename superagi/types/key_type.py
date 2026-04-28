@@ -7,7 +7,9 @@ class ToolConfigKeyType(Enum):
 
     @classmethod
     def get_key_type(cls, store):
-        store = store.upper()
+        if store is None:
+            raise ValueError("Key type cannot be None.")
+        store = str(store).upper().strip()
         if store in cls.__members__:
             return cls[store]
         raise ValueError(f"{store} is not a valid key type.")

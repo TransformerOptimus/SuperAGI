@@ -1,4 +1,5 @@
 from typing import Type, Optional
+from urllib.parse import urlparse
 
 from pydantic import BaseModel, Field
 
@@ -43,6 +44,9 @@ class WebScraperTool(BaseTool):
         Returns:
             The text content of the website.
         """
+        parsed_url = urlparse(website_url)
+        if parsed_url.scheme not in {"http", "https"} or not parsed_url.netloc:
+            raise ValueError("Only http and https URLs are allowed")
         content = WebpageExtractor().extract_with_bs4(website_url)
         max_length = len(' '.join(content.split(" ")[:600]))
         return content[:max_length]

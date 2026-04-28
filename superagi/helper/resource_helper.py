@@ -81,11 +81,15 @@ class ResourceHelper:
 
     @classmethod
     def get_formatted_agent_level_path(cls, agent: Agent, path) -> object:
+        if agent is None:
+            return path
         formatted_agent_name = agent.name.replace(" ", "")
         return path.replace("{agent_id}", formatted_agent_name + '_' + str(agent.id))
 
     @classmethod
     def get_formatted_agent_execution_level_path(cls, agent_execution: AgentExecution, path):
+        if agent_execution is None:
+            return path
         formatted_agent_execution_name = agent_execution.name.replace(" ", "")
         return path.replace("{agent_execution_id}", (formatted_agent_execution_name + '_' + str(agent_execution.id)))
 

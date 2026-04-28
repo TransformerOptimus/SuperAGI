@@ -41,6 +41,8 @@ class AgentExecutionFeed(DBBaseModel):
                f"agent_execution_id={self.agent_execution_id}, " \
                f"feed='{self.feed}', role='{self.role}', extra_info='{self.extra_info}', feed_group_id='{self.feed_group_id}')"
 
+    __str__ = __repr__
+
     @classmethod
     def get_last_tool_response(cls, session: Session, agent_execution_id: int, tool_name: str = None):
         agent_execution_feeds = session.query(AgentExecutionFeed).filter(

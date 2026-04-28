@@ -7,5 +7,5 @@ class BaseImageLlm(ABC):
         pass
 
     @abstractmethod
-    def generate_image(self, prompt: str, size: int = 512, num: int = 2):
+    def generate_image(self, prompt: str, size: int = 512, num: int = 1):
         pass

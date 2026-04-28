@@ -32,14 +32,14 @@ class ToolConfig(DBBaseModel):
     is_required = Column(Boolean)
 
     def __repr__(self):
-        return f"ToolConfig(id={self.id}, key='{self.key}', value='{self.value}, toolkit_id={self.toolkit_id}')"
+        return f"ToolConfig(id={self.id}, key='{self.key}', value='{self.value}', toolkit_id={self.toolkit_id})"
 
     def to_dict(self):
         return {
             'id': self.id,
             'key': self.key,
             'value': self.value,
-            'toolkit_id': {self.toolkit_id},
+            'toolkit_id': self.toolkit_id,
             'key_type': self.key_type,
             'is_secret': self.is_secret,
             'is_required': self.is_required
@@ -100,6 +100,8 @@ class ToolConfig(DBBaseModel):
             session.add(tool_config)
 
         session.commit()
+
+    __str__ = __repr__
 
     @classmethod
     def get_toolkit_tool_config(cls, session: Session, toolkit_id: int):

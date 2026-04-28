@@ -51,7 +51,7 @@ async def google_auth_calendar(code: str = Query(...), state: str = Query(...)):
         'access_type': 'offline',
         'approval_prompt': 'force'
     }
-    response = requests.post(token_uri, data=params)
+    response = requests.post(token_uri, data=params, timeout=20)
     if response.status_code != 200:
         raise HTTPException(status_code=400, detail="Invalid Client Secret")
     response = response.json()

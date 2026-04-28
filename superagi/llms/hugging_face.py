@@ -7,6 +7,8 @@ from superagi.llms.base_llm import BaseLlm
 from superagi.llms.utils.huggingface_utils.tasks import Tasks, TaskParameters
 from superagi.llms.utils.huggingface_utils.public_endpoints import ACCOUNT_VERIFICATION_URL
 
+REQUEST_TIMEOUT = 30
+
 class HuggingFace(BaseLlm):
     def __init__(
         self,
@@ -60,7 +62,7 @@ class HuggingFace(BaseLlm):
         Returns:
             bool: True if the access key is valid, False otherwise.
         """
-        response = requests.get(ACCOUNT_VERIFICATION_URL, headers=self.headers)
+        response = requests.get(ACCOUNT_VERIFICATION_URL, headers=self.headers, timeout=REQUEST_TIMEOUT)
 
         # A more sophisticated check could be done here.
         # Ideally we should be checking the response from the endpoint along with the status code.
@@ -91,7 +93,7 @@ class HuggingFace(BaseLlm):
                     "wait_for_model": True,
                 }
             }
-            response = requests.post(self.end_point, headers=self.headers, data=json.dumps(payload))
+            response = requests.post(self.end_point, headers=self.headers, data=json.dumps(payload), timeout=REQUEST_TIMEOUT)
             completion = json.loads(response.content.decode("utf-8"))
             logger.info(f"{completion=}")
             if self.task == Tasks.TEXT_GENERATION:
@@ -106,6 +108,6 @@ class HuggingFace(BaseLlm):
 
     def verify_end_point(self):
         data = json.dumps({"inputs": "validating end_point"})
-        response = requests.post(self.end_point, headers=self.headers, data=data)
+        response = requests.post(self.end_point, headers=self.headers, data=data, timeout=REQUEST_TIMEOUT)
 
         return response.json()

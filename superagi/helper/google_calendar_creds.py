@@ -24,11 +24,15 @@ class GoogleCalendarCreds:
 
     def get_credentials(self, toolkit_id):
         toolkit = self.session.query(Toolkit).filter(Toolkit.id == toolkit_id).first()
+        if toolkit is None:
+            return {"success": False}
         organisation_id = toolkit.organisation_id
         google_creds = self.session.query(OauthTokens).filter(OauthTokens.toolkit_id == toolkit_id, OauthTokens.organisation_id == organisation_id).first()
-        if google_creds:
+        if google_creds and google_creds.value:
             user_id = google_creds.user_id
             final_creds = json.loads(google_creds.value)
+            if not final_creds.get("refresh_token") or not final_creds.get("expiry"):
+                return {"success": False}
             final_creds["refresh_token"] = self.fix_refresh_token(final_creds["refresh_token"])
             expire_time = datetime.strptime(final_creds["expiry"], "%Y-%m-%dT%H:%M:%S.%fZ")
             google_creds = self.session.query(ToolConfig).filter(ToolConfig.toolkit_id == toolkit_id).all()

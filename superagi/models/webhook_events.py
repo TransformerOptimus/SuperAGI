@@ -20,6 +20,9 @@ class WebhookEvents(DBBaseModel):
     event = Column(String)
     status = Column(String)
     errors= Column(Text)
+
+    def __repr__(self):
+        return f"WebhookEvents(id={self.id}, agent_id={self.agent_id}, run_id={self.run_id}, event={self.event}, status={self.status})"
     
 
     

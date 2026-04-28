@@ -15,7 +15,7 @@ class LLMLoader:
         return cls._instance
 
     def __init__(self, context_length):
-        self.context_length = context_length
+        self.context_length = int(context_length or 0)
 
     @property
     def model(self):

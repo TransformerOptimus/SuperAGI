@@ -16,8 +16,14 @@ def get_model(organisation_id, api_key, model="gpt-3.5-turbo", **kwargs):
     session = Session()
 
     model_instance = session.query(Models).filter(Models.org_id == organisation_id, Models.model_name == model).first()
+    if model_instance is None:
+        session.close()
+        return None
     response = session.query(ModelsConfig.provider).filter(ModelsConfig.org_id == organisation_id,
                                                                    ModelsConfig.id == model_instance.model_provider_id).first()
+    if response is None:
+        session.close()
+        return None
     provider_name = response.provider
 
     session.close()

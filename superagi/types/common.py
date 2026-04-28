@@ -6,7 +6,7 @@ class BaseMessage(BaseModel):
     """Base message object."""
 
     content: str
-    additional_kwargs: dict = Field(default_factory=dict)
+    additional_kwargs: dict[str, object] = Field(default_factory=dict)
 
     @property
     @abstractmethod

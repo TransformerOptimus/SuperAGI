@@ -1,7 +1,4 @@
-
-import pinecone
 from typing import Optional
-from pinecone import UnauthorizedException
 from superagi.vector_embeddings.pinecone import Pinecone
 from superagi.vector_embeddings.qdrant import Qdrant
 from superagi.vector_embeddings.weaviate import Weaviate
@@ -24,8 +21,8 @@ class VectorEmbeddingFactory:
         metadata = []
         vector_store = VectorStoreType.get_vector_store_type(vector_store)
         if chunk_json is not None:
-            for key in chunk_json.keys():
-                final_chunks.append(chunk_json[key])
+            for value in chunk_json.values():
+                final_chunks.append(value)
 
             for i in range(0, len(final_chunks)):
                 uuid.append(final_chunks[i]["id"])
@@ -45,3 +42,5 @@ class VectorEmbeddingFactory:
         
         if vector_store == VectorStoreType.WEAVIATE:
             return Weaviate(uuid, embeds, metadata)
+
+        raise ValueError(f"Unsupported vector store type: {vector_store}")

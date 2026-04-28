@@ -31,7 +31,7 @@ class ScheduledAgentExecutor:
             name: Name of the agent
         """
         session = Session()
-        agent = session.query(Agent).get(agent_id)
+        agent = session.get(Agent, agent_id)
 
         if not agent:
             raise HTTPException(status_code=404, detail="Agent not found")
@@ -61,7 +61,8 @@ class ScheduledAgentExecutor:
             agent_execution_config = AgentExecutionConfiguration(agent_execution_id=agent_execution_id, key=agent_config.key, value=agent_config.value)
             session.add(agent_execution_config)
         organisation = agent.get_agent_organisation(session)
-        model = session.query(AgentConfiguration.value).filter(AgentConfiguration.agent_id == agent_id).filter(AgentConfiguration.key == 'model').first()[0]
+        model_row = session.query(AgentConfiguration.value).filter(AgentConfiguration.agent_id == agent_id).filter(AgentConfiguration.key == 'model').first()
+        model = model_row[0] if model_row else None
 
         EventHandler(session=session).create_event('run_created',
                                                    {'agent_execution_id': db_agent_execution.id,

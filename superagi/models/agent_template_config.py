@@ -34,6 +34,8 @@ class AgentTemplateConfig(DBBaseModel):
         return f"AgentTemplateConfig(id={self.id}, agent_template_id='{self.agent_template_id}', " \
                f"key='{self.key}', value='{self.value}')"
 
+    __str__ = __repr__
+
     def to_dict(self):
         """
         Converts the AgentTemplateConfig object to a dictionary.

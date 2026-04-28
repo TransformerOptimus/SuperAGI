@@ -34,6 +34,8 @@ class ModelsConfig(DBBaseModel):
         return f"ModelsConfig(id={self.id}, provider={self.provider}, " \
                f"org_id={self.org_id})"
 
+    __str__ = __repr__
+
     @classmethod
     def fetch_value_by_agent_id(cls, session, agent_id: int, model: str):
         """

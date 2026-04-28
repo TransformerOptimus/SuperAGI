@@ -66,8 +66,11 @@ class ResourceManager:
         except Exception as e:
             logger.error("superagi/resource_manager/resource_manager.py - create_llama_document_s3 threw : ", e)
         finally:
-            if os.path.exists(temporary_file_path):
-                os.remove(temporary_file_path)
+            if temporary_file_path and os.path.exists(temporary_file_path):
+                try:
+                    os.remove(temporary_file_path)
+                except OSError as e:
+                    logger.warning(f"Failed to clean up temporary file {temporary_file_path}: {e}")
 
     def save_document_to_vector_store(self, documents: list, resource_id: str, mode_api_key: str = None,
                                       model_source: str = ""):

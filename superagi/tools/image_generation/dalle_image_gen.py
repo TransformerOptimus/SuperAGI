@@ -66,6 +66,6 @@ class DalleImageGenTool(BaseTool):
         response = response.__dict__
         response = response['_previous']['data']
         for i in range(num):
-            data = requests.get(response[i]['url']).content
+            data = requests.get(response[i]['url'], timeout=30).content
             self.resource_manager.write_binary_file(image_names[i], data)
         return "Images downloaded successfully"

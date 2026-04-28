@@ -28,3 +28,5 @@ class Budget(DBBaseModel):
 
         return (f"Budget(id={self.id}, budget={self.budget}, "
                 f"cycle='{self.cycle}')")
+
+    __str__ = __repr__

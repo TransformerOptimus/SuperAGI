@@ -12,6 +12,8 @@ from superagi.helper.s3_helper import S3Helper
 from datetime import timedelta, datetime
 import json
 
+REQUEST_TIMEOUT = 20
+
 class GithubHelper:
     def __init__(self, github_access_token, github_username):
         """
@@ -58,7 +60,7 @@ class GithubHelper:
             "Authorization": f"Token {self.github_access_token}",
             "Accept": "application/vnd.github.v3+json"
         }
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
         if response.status_code == 200:
             repository_data = response.json()
             return repository_data['private']
@@ -85,7 +87,7 @@ class GithubHelper:
         }
         file_path = self.get_file_path(file_name, folder_path)
         url = f'https://api.github.com/repos/{repository_owner}/{repository_name}/contents/{file_path}'
-        r = requests.get(url, headers=headers)
+        r = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
         r.raise_for_status()
         data = r.json()
 
@@ -106,7 +108,7 @@ class GithubHelper:
             None
         """
         base_branch_url = f'https://api.github.com/repos/{repository_owner}/{repository_name}/branches/{base_branch}'
-        response = requests.get(base_branch_url, headers=headers)
+        response = requests.get(base_branch_url, headers=headers, timeout=REQUEST_TIMEOUT)
         response_json = response.json()
         base_commit_sha = response_json['commit']['sha']
         head_branch_url = f'https://api.github.com/repos/{self.github_username}/{repository_name}/git/refs/heads/{head_branch}'
@@ -114,7 +116,7 @@ class GithubHelper:
             'sha': base_commit_sha,
             'force': True
         }
-        response = requests.patch(head_branch_url, json=data, headers=headers)
+        response = requests.patch(head_branch_url, json=data, headers=headers, timeout=REQUEST_TIMEOUT)
         if response.status_code == 200:
             logger.info(
                 f'Successfully synced {self.github_username}:{head_branch} branch with {repository_owner}:{base_branch}')
@@ -135,7 +137,7 @@ class GithubHelper:
             int: Status code of the fork request.
         """
         fork_url = f'https://api.github.com/repos/{repository_owner}/{repository_name}/forks'
-        fork_response = requests.post(fork_url, headers=headers)
+        fork_response = requests.post(fork_url, headers=headers, timeout=REQUEST_TIMEOUT)
         if fork_response.status_code == 202:
             logger.info('Fork created successfully.')
             self.sync_branch(repository_owner, repository_name, base_branch, base_branch, headers)
@@ -162,9 +164,9 @@ class GithubHelper:
             'ref': f'refs/heads/{head_branch}',
             'sha': requests.get(
                 f'https://api.github.com/repos/{self.github_username}/{repository_name}/git/refs/heads/{base_branch}',
-                headers=headers).json()['object']['sha']
+                headers=headers, timeout=REQUEST_TIMEOUT).json()['object']['sha']
         }
-        branch_response = requests.post(branch_url, json=branch_params, headers=headers)
+        branch_response = requests.post(branch_url, json=branch_params, headers=headers, timeout=REQUEST_TIMEOUT)
         if branch_response.status_code == 201:
             logger.info('Branch created successfully.')
         elif branch_response.status_code == 422:
@@ -196,7 +198,7 @@ class GithubHelper:
             'sha': self.get_sha(self.github_username, repository_name, file_name, folder_path),
             'branch': head_branch
         }
-        file_response = requests.delete(file_url, json=file_params, headers=headers)
+        file_response = requests.delete(file_url, json=file_params, headers=headers, timeout=REQUEST_TIMEOUT)
         if file_response.status_code == 200:
             logger.info('File or folder delete successfully.')
         else:
@@ -230,7 +232,7 @@ class GithubHelper:
             'content': file_content,
             'branch': head_branch
         }
-        file_response = requests.put(file_url, json=file_params, headers=headers)
+        file_response = requests.put(file_url, json=file_params, headers=headers, timeout=REQUEST_TIMEOUT)
         if file_response.status_code == 201:
             logger.info('File content uploaded successfully.')
         elif file_response.status_code == 422:
@@ -262,7 +264,7 @@ class GithubHelper:
             'head_repo': repository_name,  # required for cross repository only
             'base': base_branch
         }
-        pr_response = requests.post(pull_request_url, json=pull_request_params, headers=headers)
+        pr_response = requests.post(pull_request_url, json=pull_request_params, headers=headers, timeout=REQUEST_TIMEOUT)
 
         if pr_response.status_code == 201:
             logger.info('Pull request created successfully.')
@@ -359,7 +361,7 @@ class GithubHelper:
             "Accept": "application/vnd.github.v3.diff",
         }
 
-        response = requests.get(pull_request_url, headers=headers)
+        response = requests.get(pull_request_url, headers=headers, timeout=REQUEST_TIMEOUT)
 
         if response.status_code == 200:
             logger.info('Successfully fetched pull request content.')
@@ -386,7 +388,7 @@ class GithubHelper:
             "Authorization": f"token {self.github_access_token}" if self.github_access_token else None,
             "Content-Type": "application/json",
         }
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
         if response.status_code == 200:
             commits = response.json()
             latest_commit = commits[-1]  # Assuming the last commit is the latest
@@ -424,7 +426,7 @@ class GithubHelper:
             "position": position,
             "body": comment_body
         }
-        response = requests.post(comments_url, headers=headers, json=data)
+        response = requests.post(comments_url, headers=headers, json=data, timeout=REQUEST_TIMEOUT)
         if response.status_code == 201:
             logger.info('Successfully added line comment to pull request.')
             return response.json()
@@ -459,7 +461,7 @@ class GithubHelper:
             "Content-Type": "application/json",
         }
 
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
 
         if response.status_code == 200:
             pull_request_urls = []

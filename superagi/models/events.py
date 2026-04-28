@@ -34,3 +34,5 @@ class Event(DBBaseModel):
                f"event_value={self.event_value}, " \
                f"agent_id={self.agent_id}, " \
                f"org_id={self.org_id})"
+
+    __str__ = __repr__

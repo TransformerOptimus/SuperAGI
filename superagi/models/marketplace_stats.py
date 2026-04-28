@@ -7,6 +7,7 @@ from superagi.models.base_model import DBBaseModel
 
 marketplace_url = "https://app.superagi.com/api"
 # marketplace_url = "http://localhost:8001"
+MARKETPLACE_TIMEOUT = 10
 
 class MarketPlaceStats(DBBaseModel):
     """
@@ -31,15 +32,17 @@ class MarketPlaceStats(DBBaseModel):
         """
         Returns a string representation of the MarketplaceStats object.
         """
-        return f"Knowledge(id={self.id}, reference_id='{self.reference_id}', reference_name='{self.reference_name}', " \
-               f"key='{self.key}', value='{self.value}'"
+        return f"MarketplaceStats(id={self.id}, reference_id='{self.reference_id}', reference_name='{self.reference_name}', " \
+               f"key='{self.key}', value='{self.value}')"
+
+    __str__ = __repr__
 
     @classmethod
     def get_knowledge_installation_number(cls, knowledge_id: int):
         headers = {'Content-Type': 'application/json'}
         response = requests.get(
             marketplace_url + f"/marketplace/knowledge/downloads/{str(knowledge_id)}",
-            headers=headers, timeout=10)
+            headers=headers, timeout=MARKETPLACE_TIMEOUT)
         if response.status_code == 200:
             return response.json()
         else:

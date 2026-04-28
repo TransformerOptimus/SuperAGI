@@ -82,5 +82,9 @@ class ReadEmail:
             folder_name = self.clean(subject)
             if not os.path.isdir(folder_name):
                 os.mkdir(folder_name)
-                filepath = os.path.join(folder_name, filename)
-                open(filepath, "wb").write(part.get_payload(decode=True))
+            filepath = os.path.join(folder_name, filename)
+            try:
+                with open(filepath, "wb") as f:
+                    f.write(part.get_payload(decode=True))
+            except IOError as e:
+                logger.error(f"Failed to write email attachment {filename}: {e}")

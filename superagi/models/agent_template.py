@@ -11,7 +11,7 @@ from superagi.models.workflows.iteration_workflow import IterationWorkflow
 
 marketplace_url = "https://app.superagi.com/api/"
 # marketplace_url = "http://localhost:8001/"
-
+MARKETPLACE_TIMEOUT = 10
 
 class AgentTemplate(DBBaseModel):
     """
@@ -45,6 +45,8 @@ class AgentTemplate(DBBaseModel):
 
         return f"AgentTemplate(id={self.id}, name='{self.name}', " \
                f"description='{self.description}')"
+
+    __str__ = __repr__
 
     def to_dict(self):
         """
@@ -118,7 +120,7 @@ class AgentTemplate(DBBaseModel):
         headers = {'Content-Type': 'application/json'}
         response = requests.get(
             marketplace_url + "agent_templates/marketplace/list?search=" + search_str + "&page=" + str(page),
-            headers=headers, timeout=10)
+            headers=headers, timeout=MARKETPLACE_TIMEOUT)
         if response.status_code == 200:
             return response.json()
         else:
@@ -139,7 +141,7 @@ class AgentTemplate(DBBaseModel):
         headers = {'Content-Type': 'application/json'}
         response = requests.get(
             marketplace_url + "agent_templates/marketplace/template_details/" + str(agent_template_id),
-            headers=headers, timeout=10)
+            headers=headers, timeout=MARKETPLACE_TIMEOUT)
         if response.status_code == 200:
             return response.json()
         else:
@@ -221,6 +223,13 @@ class AgentTemplate(DBBaseModel):
             else:
                 return None
         elif key == "goal" or key == "constraints" or key == "instruction":
-            return eval(value)
+            try:
+                return json.loads(value)
+            except (TypeError, json.JSONDecodeError):
+                return ast.literal_eval(value)
         elif key == "tools":
-            return [str(x) for x in eval(value)]
+            try:
+                parsed_value = json.loads(value)
+            except (TypeError, json.JSONDecodeError):
+                parsed_value = ast.literal_eval(value)
+            return [str(x) for x in parsed_value]

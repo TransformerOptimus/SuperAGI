@@ -31,6 +31,8 @@ class ApiKey(DBBaseModel):
     @classmethod
     def delete_by_id(cls, session,id: int):
         db_api_key = session.query(ApiKey).filter(ApiKey.id == id).first()
+        if db_api_key is None:
+            return None
         db_api_key.is_expired = True
         session.commit()
         session.flush()
@@ -38,6 +40,8 @@ class ApiKey(DBBaseModel):
     @classmethod
     def update_api_key(cls, session, id: int, name: str):
         db_api_key = session.query(ApiKey).filter(ApiKey.id == id).first()
+        if db_api_key is None:
+            return None
         db_api_key.name = name
         session.commit()
         session.flush()

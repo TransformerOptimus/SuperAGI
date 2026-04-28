@@ -1,5 +1,5 @@
 import openai
-from openai import APIError, InvalidRequestError
+from openai import InvalidRequestError
 from openai.error import RateLimitError, AuthenticationError, Timeout, TryAgain
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_random_exponential
 
@@ -122,7 +122,7 @@ class OpenAi(BaseLlm):
             bool: True if the access key is valid, False otherwise.
         """
         try:
-            models = openai.Model.list()
+            openai.Model.list()
             return True
         except Exception as exception:
             logger.info("OpenAi Exception:", exception)

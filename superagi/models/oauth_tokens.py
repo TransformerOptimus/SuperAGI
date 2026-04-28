@@ -37,6 +37,8 @@ class OauthTokens(DBBaseModel):
         """
 
         return f"Tokens(id={self.id}, user_id={self.user_id}, organisation_id={self.organisation_id} toolkit_id={self.toolkit_id}, key={self.key}, value={self.value})"
+
+    __str__ = __repr__
     
     @classmethod
     def add_or_update(self, session: Session, toolkit_id: int, user_id: int, organisation_id: int, key: str, value: Text = None):

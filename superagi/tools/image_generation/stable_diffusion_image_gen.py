@@ -94,5 +94,6 @@ class StableDiffusionImageGenTool(BaseTool):
                 "samples": num,
                 "steps": steps,
             },
+            timeout=60
         )
         return response

@@ -54,6 +54,8 @@ class AgentExecution(DBBaseModel):
             f"permission_id={self.permission_id}, iteration_workflow_step_id={self.iteration_workflow_step_id})"
         )
 
+    __str__ = __repr__
+
     def to_dict(self):
         """
         Converts the AgentExecution object to a dictionary.

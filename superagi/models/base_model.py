@@ -66,3 +66,5 @@ class DBBaseModel(Base):
                 A string with the format "<Class Name> (<dictionary representation of the object>)".
         """
         return f"{self.__class__.__name__} ({self.to_dict()})"
+
+    __str__ = __repr__

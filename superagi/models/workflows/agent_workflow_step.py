@@ -42,9 +42,11 @@ class AgentWorkflowStep(DBBaseModel):
             str: String representation of the AgentWorkflowStep.
         """
 
-        return f"AgentWorkflowStep(id={self.id}, status='{self.agent_workflow_id}', " \
-               f"prompt='{self.unique_id}', agent_id={self.step_type}, action_type={self.action_type}, " \
+     return f"AgentWorkflowStep(id={self.id}, agent_workflow_id={self.agent_workflow_id}, " \
+         f"unique_id='{self.unique_id}', step_type={self.step_type}, action_type={self.action_type}, " \
                f"action_reference_id={self.action_reference_id}, next_steps={self.next_steps})"
+
+    __str__ = __repr__
 
     def to_dict(self):
         """

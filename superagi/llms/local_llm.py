@@ -86,7 +86,7 @@ class LocalLLM(BaseLlm):
         Returns:
             list: The models.
         """
-        return self.model
+        return [self.model] if self.model is not None else []
 
-    def verify_access_key(self, api_key):
+    def verify_access_key(self):
         return True

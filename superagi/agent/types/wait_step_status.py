@@ -9,8 +9,8 @@ class AgentWorkflowStepWaitStatus(Enum):
     @classmethod
     def get_agent_workflow_step_wait_status(cls, store):
         if store is None:
-            raise ValueError("Storage type cannot be None.")
-        store = store.upper()
+            raise ValueError("Wait step status cannot be None.")
+        store = str(store).upper().strip()
         if store in cls.__members__:
             return cls[store]
-        raise ValueError(f"{store} is not a valid storage name.")
+        raise ValueError(f"{store} is not a valid wait step status name.")

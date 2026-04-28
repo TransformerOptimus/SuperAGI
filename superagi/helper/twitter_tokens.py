@@ -5,6 +5,7 @@ import base64
 import hashlib
 import urllib.parse
 import ast
+import json
 import http.client as http_client
 from sqlalchemy.orm import Session
 from superagi.models.toolkit import Toolkit
@@ -78,6 +79,11 @@ class TwitterTokens:
         toolkit = self.session.query(Toolkit).filter(Toolkit.id == toolkit_id).first()
         organisation_id = toolkit.organisation_id
         twitter_creds = self.session.query(OauthTokens).filter(OauthTokens.toolkit_id == toolkit_id, OauthTokens.organisation_id == organisation_id).first()
-        twitter_creds = ast.literal_eval(twitter_creds.value)
+        if twitter_creds is None or not twitter_creds.value:
+            raise ValueError("Twitter credentials not found")
+        try:
+            twitter_creds = json.loads(twitter_creds.value)
+        except json.JSONDecodeError:
+            twitter_creds = ast.literal_eval(twitter_creds.value)
         final_creds = Creds(twitter_creds['api_key'], twitter_creds['api_key_secret'], twitter_creds['oauth_token'], twitter_creds['oauth_token_secret'])
         return final_creds

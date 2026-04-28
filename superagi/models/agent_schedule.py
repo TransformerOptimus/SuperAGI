@@ -43,9 +43,9 @@ class AgentSchedule(DBBaseModel):
                f"next_scheduled_time={self.next_scheduled_time}, " \
                f"recurrence_interval={self.recurrence_interval}, " \
                f"expiry_date={self.expiry_date}, " \
-               f"expiry_runs={self.expiry_runs}), " \
-               f"current_runs={self.expiry_runs}), " \
-               f"status={self.status}), " 
+               f"expiry_runs={self.expiry_runs}, " \
+               f"current_runs={self.current_runs}, " \
+               f"status={self.status})"
     
     @classmethod
     def save_schedule_from_config(cls, session, db_agent, schedule_config: AgentScheduleInput):
@@ -60,7 +60,6 @@ class AgentSchedule(DBBaseModel):
             status="SCHEDULED"
         )
 
-        agent_schedule.agent_id = db_agent.id
         session.add(agent_schedule)
         session.commit()
         return agent_schedule

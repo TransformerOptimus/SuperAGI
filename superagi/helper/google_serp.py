@@ -58,7 +58,7 @@ class GoogleSerpApiWrap:
         params = {"q": query,}
         async with aiohttp.ClientSession() as session:
             async with session.post(
-                    f"https://google.serper.dev/{search_type}", headers=headers, params=params
+                    f"https://google.serper.dev/{search_type}", headers=headers, params=params, timeout=30
             ) as response:
                 response.raise_for_status()
                 search_results = await response.json()
@@ -102,7 +102,7 @@ class GoogleSerpApiWrap:
             for attribute, value in knowledge_graph.get("attributes", {}).items():
                 snippets.append(f"{title} {attribute}: {value}.")
 
-        for result in results["organic"][:self.num_results]:
+        for result in results.get("organic", [])[:self.num_results]:
             if "snippet" in result:
                 snippets.append(result["snippet"])
             if "link" in result and len(links) < self.num_results:

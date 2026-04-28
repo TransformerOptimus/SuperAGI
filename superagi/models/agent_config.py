@@ -2,13 +2,9 @@ from fastapi import HTTPException
 from sqlalchemy import Column, Integer, Text, String
 from typing import Union
 
-from superagi.config.config import get_config
-from superagi.helper.encyption_helper import decrypt_data
 from superagi.models.base_model import DBBaseModel
 from superagi.models.configuration import Configuration
 from superagi.models.models_config import ModelsConfig
-from superagi.types.model_source_types import ModelSourceType
-from superagi.models.tool import Tool
 from superagi.controllers.types.agent_execution_config import AgentRunIn
 
 
@@ -103,6 +99,8 @@ class AgentConfiguration(DBBaseModel):
             str: The model API key.
         """
         config_model = ModelsConfig.fetch_value_by_agent_id(session, agent_id, model)
+        if config_model is None:
+            return None
         return config_model
 #         selected_model_source = ModelSourceType.get_model_source_from_model(model)
 #         if selected_model_source.value == config_model_source:

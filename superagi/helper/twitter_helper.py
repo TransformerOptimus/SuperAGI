@@ -28,7 +28,8 @@ class TwitterHelper:
             headers = {'Authorization': 'application/octet-stream'}
             response = requests.post(upload_endpoint, headers=headers,
                                      data={'media_data': b64_image},
-                                     auth=oauth)
+                                     auth=oauth,
+                                     timeout=20)
             ids = json.loads(response.text)['media_id']
             media_ids.append(str(ids))
         return media_ids
@@ -55,7 +56,7 @@ class TwitterHelper:
                               resource_owner_key=creds.oauth_token,
                               resource_owner_secret=creds.oauth_token_secret)
 
-        response = oauth.post(tweet_endpoint, json=params)
+        response = oauth.post(tweet_endpoint, json=params, timeout=20)
         return response
 
     def _get_image_data(self, file_path):

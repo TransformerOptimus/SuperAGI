@@ -42,3 +42,5 @@ class AgentExecutionPermission(DBBaseModel):
                f"tool_name={self.tool_name}, " \
                f"question={self.question}, " \
                f"response={self.user_feedback})"
+
+    __str__ = __repr__

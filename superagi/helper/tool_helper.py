@@ -54,14 +54,14 @@ def download_tool(tool_url, target_folder):
             else:
                 continue
 
-            target_path = os.path.join(target_folder, target_name)
-
-            if not target_name:
+            target_path = os.path.abspath(os.path.join(target_folder, target_name))
+            if not target_path.startswith(os.path.abspath(target_folder) + os.sep):
                 continue
 
             if member.endswith('/'):
                 os.makedirs(target_path, exist_ok=True)
             else:
+                os.makedirs(os.path.dirname(target_path), exist_ok=True)
                 with open(target_path, 'wb') as outfile, z.open(member) as infile:
                     outfile.write(infile.read())
     logger.info("Donwload Success!")

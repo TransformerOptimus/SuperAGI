@@ -5,17 +5,19 @@ import pytz
 
 class CalendarDate:
     def create_event_dates(self, service, start_date, start_time, end_date, end_time):
-        local_tz = pytz.timezone(self._get_time_zone(service))
+        time_zone = self._get_time_zone(service) or "GMT"
+        local_tz = pytz.timezone(time_zone)
         start_datetime, end_datetime = self._localize_daterange(start_date, end_date, start_time, end_time, local_tz)
         date_utc = {
             "start_datetime_utc": self._datetime_to_string(start_datetime, "%Y-%m-%dT%H:%M:%S.%fZ"),
             "end_datetime_utc": self._datetime_to_string(end_datetime, "%Y-%m-%dT%H:%M:%S.%fZ"),
-            "timeZone": self._get_time_zone(service)
+            "timeZone": time_zone
         }
         return date_utc
 
     def get_date_utc(self, start_date, end_date, start_time, end_time, service):
-        local_tz = pytz.timezone(self._get_time_zone(service))
+        time_zone = self._get_time_zone(service) or "GMT"
+        local_tz = pytz.timezone(time_zone)
         start_datetime, end_datetime = self._localize_daterange(start_date, end_date, start_time, end_time, local_tz)
         date_utc = {
             "start_datetime_utc": self._datetime_to_string(start_datetime, "%Y-%m-%dT%H:%M:%S.%fZ"),

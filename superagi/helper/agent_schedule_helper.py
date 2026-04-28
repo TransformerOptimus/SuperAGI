@@ -39,6 +39,7 @@ class AgentScheduleHelper:
                                    agent_execution_name)
 
         for agent in scheduled_agents:
+            interval = agent.recurrence_interval
             if self.__can_remove_agent(agent, interval):
                 agent.status = "COMPLETED"
                 session.commit()
@@ -89,6 +90,8 @@ class AgentScheduleHelper:
             current_time = datetime.now().astimezone(pytz.timezone(user_timezone.value))
         else:
             current_time = datetime.now().astimezone(pytz.timezone('GMT'))
+
+        session.close()
 
         timestamp = current_time.strftime(" %d %B %Y %H:%M")
         return f"Run{timestamp}"

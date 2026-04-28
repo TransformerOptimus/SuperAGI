@@ -15,10 +15,14 @@ class ImapEmail:
         Returns:
             imaplib.IMAP4_SSL: The IMAP connection.
         """
-        conn = imaplib.IMAP4_SSL(imap_server)
-        conn.login(email_sender, email_password)
-        conn.select(imap_folder)
-        return conn
+        try:
+            conn = imaplib.IMAP4_SSL(imap_server, timeout=20)
+            conn.login(email_sender, email_password)
+            conn.select(imap_folder)
+            return conn
+        except (imaplib.IMAP4.error, imaplib.IMAP4.abort) as e:
+            logger.error(f"IMAP connection error for {email_sender}: {e}")
+            raise
 
     def adjust_imap_folder(self, imap_folder, email_sender) -> str:
         """

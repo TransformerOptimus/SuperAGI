@@ -25,14 +25,16 @@ class IterationWorkflow(DBBaseModel):
 
     def __repr__(self):
         """
-        Returns a string representation of the AgentWorkflow object.
+        Returns a string representation of the IterationWorkflow object.
 
         Returns:
-            str: String representation of the AgentWorkflow.
+            str: String representation of the IterationWorkflow.
         """
 
-        return f"AgentWorkflow(id={self.id}, name='{self.name}', " \
+        return f"IterationWorkflow(id={self.id}, name='{self.name}', " \
                f"description='{self.description}')"
+
+    __str__ = __repr__
 
     def to_dict(self):
         """

@@ -11,8 +11,8 @@ class AgentExecutionStatus(Enum):
     @classmethod
     def get_agent_execution_status(cls, store):
         if store is None:
-            raise ValueError("Storage type cannot be None.")
-        store = store.upper()
+            raise ValueError("Agent execution status cannot be None.")
+        store = str(store).upper().strip()
         if store in cls.__members__:
             return cls[store]
-        raise ValueError(f"{store} is not a valid storage name.")
+        raise ValueError(f"{store} is not a valid agent execution status name.")

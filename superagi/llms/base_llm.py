@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 class BaseLlm(ABC):
     @abstractmethod
-    def chat_completion(self, prompt):
+    def chat_completion(self, messages):
         pass
 
     @abstractmethod
