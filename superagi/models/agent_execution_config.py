@@ -107,7 +107,7 @@ class AgentExecutionConfiguration(DBBaseModel):
         """
 
         if key == "goal" or key == "instruction" or key == "tools":
-            return eval(value)
+            return ast.literal_eval(value)
 
     @classmethod
     def build_agent_execution_config(cls, session, agent, results_agent, results_agent_execution, total_calls, total_tokens):
@@ -120,7 +120,7 @@ class AgentExecutionConfiguration(DBBaseModel):
 
         # Construct the response
         if 'goal' in results_agent_dict:
-            results_agent_dict['goal'] = eval(results_agent_dict['goal'])
+            results_agent_dict['goal'] = ast.literal_eval(results_agent_dict['goal'])
 
         if "toolkits" in results_agent_dict:
             results_agent_dict["toolkits"] = list(ast.literal_eval(results_agent_dict["toolkits"]))
@@ -130,10 +130,10 @@ class AgentExecutionConfiguration(DBBaseModel):
             tools = session.query(Tool).filter(Tool.id.in_(results_agent_dict["tools"])).all()
             results_agent_dict["tools"] = tools
         if 'instruction' in results_agent_dict:
-            results_agent_dict['instruction'] = eval(results_agent_dict['instruction'])
+            results_agent_dict['instruction'] = ast.literal_eval(results_agent_dict['instruction'])
 
         if 'constraints' in results_agent_dict:
-            results_agent_dict['constraints'] = eval(results_agent_dict['constraints'])
+            results_agent_dict['constraints'] = ast.literal_eval(results_agent_dict['constraints'])
 
         results_agent_dict["name"] = agent.name
         agent_workflow = AgentWorkflow.find_by_id(session, agent.agent_workflow_id)
@@ -158,7 +158,7 @@ class AgentExecutionConfiguration(DBBaseModel):
             
         # Construct the response
         if 'goal' in results_agent_dict:
-            results_agent_dict['goal'] = eval(results_agent_dict['goal'])
+            results_agent_dict['goal'] = ast.literal_eval(results_agent_dict['goal'])
 
         if "toolkits" in results_agent_dict:
             results_agent_dict["toolkits"] = list(ast.literal_eval(results_agent_dict["toolkits"]))
@@ -168,10 +168,10 @@ class AgentExecutionConfiguration(DBBaseModel):
             tools = session.query(Tool).filter(Tool.id.in_(results_agent_dict["tools"])).all()
             results_agent_dict["tools"] = tools
         if 'instruction' in results_agent_dict:
-            results_agent_dict['instruction'] = eval(results_agent_dict['instruction'])
+            results_agent_dict['instruction'] = ast.literal_eval(results_agent_dict['instruction'])
 
         if 'constraints' in results_agent_dict:
-            results_agent_dict['constraints'] = eval(results_agent_dict['constraints'])
+            results_agent_dict['constraints'] = ast.literal_eval(results_agent_dict['constraints'])
 
         results_agent_dict["name"] = agent.name
         agent_workflow = AgentWorkflow.find_by_id(session, agent.agent_workflow_id)

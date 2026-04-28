@@ -113,7 +113,7 @@ class Agent(DBBaseModel):
         elif key in ["project_id", "memory_window", "max_iterations", "iteration_interval"]:
             return int(value)
         elif key in ["goal", "constraints", "instruction", "is_deleted"]:
-            return eval(value)
+            return ast.literal_eval(value)
         elif key == "tools":
             return list(ast.literal_eval(value))
 
