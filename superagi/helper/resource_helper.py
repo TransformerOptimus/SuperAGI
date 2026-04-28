@@ -96,7 +96,7 @@ class ResourceHelper:
         Args:
             file_name (str): The name of the file.
         """
-        return ResourceHelper.get_root_output_dir() + file_name
+        return ResourceHelper._validate_path_containment(ResourceHelper.get_root_output_dir(), file_name)
 
     @classmethod
     def get_root_output_dir(cls):
@@ -124,6 +124,14 @@ class ResourceHelper:
             root_dir = os.getcwd() + "/"
         return root_dir
 
+    @staticmethod
+    def _validate_path_containment(root_dir: str, file_name: str) -> str:
+        final_path = os.path.abspath(root_dir + file_name)
+        root_dir_abs = os.path.abspath(root_dir)
+        if not final_path.startswith(root_dir_abs + os.sep) and final_path != root_dir_abs:
+            raise ValueError(f"Path traversal detected: {file_name}")
+        return final_path
+
     @classmethod
     def get_agent_write_resource_path(cls, file_name: str, agent: Agent, agent_execution: AgentExecution):
         """Get agent resource path to write files
@@ -140,7 +148,7 @@ class ResourceHelper:
                 root_dir = ResourceHelper.get_formatted_agent_execution_level_path(agent_execution, root_dir)
             directory = os.path.dirname(root_dir)
             os.makedirs(directory, exist_ok=True)
-        final_path = root_dir + file_name
+        final_path = ResourceHelper._validate_path_containment(root_dir, file_name)
         return final_path
 
     @staticmethod
@@ -162,7 +170,8 @@ class ResourceHelper:
             agent (Agent): The agent corresponding to resource.
             agent_execution (AgentExecution): The agent execution corresponding to the resource.
         """
-        final_path = ResourceHelper.get_root_input_dir() + file_name
+        input_root_dir = ResourceHelper.get_root_input_dir()
+        final_path = ResourceHelper._validate_path_containment(input_root_dir, file_name)
         if "{agent_id}" in final_path:
             final_path = ResourceHelper.get_formatted_agent_level_path(
                 agent=agent,
@@ -170,7 +179,7 @@ class ResourceHelper:
         output_root_dir = ResourceHelper.get_root_output_dir()
         if final_path is None or cls.__check_file_path_exists(final_path):
             if output_root_dir is not None:
-                final_path = ResourceHelper.get_root_output_dir() + file_name
+                final_path = ResourceHelper._validate_path_containment(output_root_dir, file_name)
                 if "{agent_id}" in final_path:
                     final_path = ResourceHelper.get_formatted_agent_level_path(
                         agent=agent,
