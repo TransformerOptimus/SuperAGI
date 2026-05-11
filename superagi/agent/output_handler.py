@@ -146,7 +146,7 @@ class TaskOutputHandler:
 
     def handle(self, session, assistant_reply):
         assistant_reply = JsonCleaner.extract_json_array_section(assistant_reply)
-        tasks = eval(assistant_reply)
+        tasks = json.loads(assistant_reply)
         tasks = np.array(tasks).flatten().tolist()
         for task in reversed(tasks):
             self.task_queue.add_task(task)
@@ -177,7 +177,7 @@ class ReplaceTaskOutputHandler:
 
     def handle(self, session, assistant_reply):
         assistant_reply = JsonCleaner.extract_json_array_section(assistant_reply)
-        tasks = eval(assistant_reply)
+        tasks = json.loads(assistant_reply)
         self.task_queue.clear_tasks()
         for task in reversed(tasks):
             self.task_queue.add_task(task)
