@@ -1,3 +1,4 @@
+import ast
 import json
 
 import redis
@@ -30,7 +31,7 @@ class TaskQueue:
 
     def get_completed_tasks(self):
         tasks = self.db.lrange(self.completed_tasks, 0, -1)
-        return [eval(task) for task in tasks]
+        return [ast.literal_eval(task) for task in tasks]
 
     def clear_tasks(self):
         self.db.delete(self.queue_name)
@@ -40,7 +41,7 @@ class TaskQueue:
         if response is None:
             return None
 
-        return eval(response)
+        return ast.literal_eval(response)
 
     def set_status(self, status):
         self.db.set(self.queue_name + "_status", status)

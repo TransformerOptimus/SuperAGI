@@ -10,7 +10,7 @@ from superagi.helper.json_cleaner import JsonCleaner
 from superagi.models.agent import Agent
 from superagi.models.agent_execution_permission import AgentExecutionPermission
 import numpy as np
-from superagi.agent.output_handler import ToolOutputHandler
+import json
 
 
 # Test for ToolOutputHandler
@@ -107,7 +107,7 @@ def test_task_output_handle_method(extract_json_array_section_mock, get_tasks_mo
     agent_config = {"agent_id": 2}
     assistant_reply = '["task1", "task2", "task3"]'
     tasks = ["task1", "task2", "task3"]
-    extract_json_array_section_mock.return_value = str(tasks)
+    extract_json_array_section_mock.return_value = json.dumps(tasks)
     get_tasks_mock.return_value = tasks
     handler = TaskOutputHandler(agent_execution_id, agent_config)
 
@@ -136,7 +136,7 @@ def test_handle_method(extract_json_array_section_mock, get_tasks_mock, add_task
     agent_config = {}
     assistant_reply = '["task1", "task2", "task3"]'
     tasks = ["task1", "task2", "task3"]
-    extract_json_array_section_mock.return_value = str(tasks)
+    extract_json_array_section_mock.return_value = json.dumps(tasks)
     get_tasks_mock.return_value = tasks
     handler = ReplaceTaskOutputHandler(agent_execution_id, agent_config)
 

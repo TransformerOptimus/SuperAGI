@@ -1,3 +1,4 @@
+import json
 import time
 
 import numpy as np
@@ -76,7 +77,7 @@ class QueueStepHandler:
     def _process_reply(self, task_queue: TaskQueue, assistant_reply: str):
         assistant_reply = JsonCleaner.extract_json_array_section(assistant_reply)
         print("Queue reply:", assistant_reply)
-        task_array = np.array(eval(assistant_reply)).flatten().tolist()
+        task_array = np.array(json.loads(assistant_reply)).flatten().tolist()
         for task in task_array:
             task_queue.add_task(str(task))
             logger.info("RAMRAM: Added task to queue: ", task)
