@@ -93,6 +93,8 @@ class OpenAi(BaseLlm):
                 frequency_penalty=self.frequency_penalty,
                 presence_penalty=self.presence_penalty
             )
+            if not response.choices or response.choices[0].message is None:
+                raise ValueError("LLM returned empty or filtered response")
             content = response.choices[0].message["content"]
             return {"response": response, "content": content}
         except RateLimitError as api_error:
