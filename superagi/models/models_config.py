@@ -4,6 +4,7 @@ from superagi.models.base_model import DBBaseModel
 from superagi.models.organisation import Organisation
 from superagi.models.project import Project
 from superagi.models.models import Models
+from superagi.llms.minimax import MiniMax
 from superagi.llms.openai import OpenAi
 from superagi.helper.encyption_helper import encrypt_data, decrypt_data
 from fastapi import HTTPException
@@ -85,6 +86,8 @@ class ModelsConfig(DBBaseModel):
             session.flush()
             if model_provider == 'OpenAI':
                 cls.storeGptModels(session, organisation_id, existing_entry.id, model_api_key)
+            elif model_provider == 'MiniMax':
+                cls.storeMiniMaxModels(session, organisation_id, existing_entry.id)
             result = {'message': 'The API key was successfully updated'}
         else:
             new_entry = ModelsConfig(org_id=organisation_id, provider=model_provider,
@@ -94,6 +97,8 @@ class ModelsConfig(DBBaseModel):
             session.flush()
             if model_provider == 'OpenAI':
                 cls.storeGptModels(session, organisation_id, new_entry.id, model_api_key)
+            elif model_provider == 'MiniMax':
+                cls.storeMiniMaxModels(session, organisation_id, new_entry.id)
             result = {'message': 'The API key was successfully stored', 'model_provider_id': new_entry.id}
 
         return result
@@ -107,6 +112,15 @@ class ModelsConfig(DBBaseModel):
             if model not in installed_models and model in default_models:
                 result = Models.store_model_details(session, organisation_id, model, model, '',
                                                  model_provider_id, default_models[model], 'Custom', '', 0)
+
+    @classmethod
+    def storeMiniMaxModels(cls, session, organisation_id, model_provider_id):
+        default_models = {"MiniMax-M3": 512000, "MiniMax-M2.7": 204000, "MiniMax-M2.7-highspeed": 204000}
+        installed_models = [model[0] for model in session.query(Models.model_name).filter(Models.org_id == organisation_id).all()]
+        for model_name, token_limit in default_models.items():
+            if model_name not in installed_models:
+                Models.store_model_details(session, organisation_id, model_name, model_name, '',
+                                           model_provider_id, token_limit, 'Custom', '', 0)
 
     @classmethod
     def fetch_api_keys(cls, session, organisation_id):

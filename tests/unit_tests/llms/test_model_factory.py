@@ -4,6 +4,7 @@ from unittest.mock import Mock
 from superagi.llms.google_palm import GooglePalm
 from superagi.llms.hugging_face import HuggingFace
 from superagi.llms.llm_model_factory import get_model, build_model_with_api_key
+from superagi.llms.minimax import MiniMax
 from superagi.llms.openai import OpenAi
 from superagi.llms.replicate import Replicate
 
@@ -73,6 +74,13 @@ def test_build_model_with_hugging_face(mock_hugging_face, monkeypatch):
     monkeypatch.setattr('superagi.llms.llm_model_factory.HuggingFace', mock_hugging_face)  # Replace 'your_module' with the actual module name
     model = build_model_with_api_key('Hugging Face', 'fake_key')
     mock_hugging_face.assert_called_once_with(api_key='fake_key')
+    assert isinstance(model, Mock)
+
+def test_build_model_with_minimax(monkeypatch):
+    mock_minimax = Mock(spec=MiniMax)
+    monkeypatch.setattr('superagi.llms.llm_model_factory.MiniMax', mock_minimax)
+    model = build_model_with_api_key('MiniMax', 'fake_key')
+    mock_minimax.assert_called_once_with(api_key='fake_key')
     assert isinstance(model, Mock)
 
 def test_build_model_with_unknown_provider(capsys):  # capsys is a built-in pytest fixture for capturing print output

@@ -6,6 +6,7 @@ class ModelSourceType(Enum):
     OpenAI = 'OpenAi'
     Replicate = 'Replicate'
     HuggingFace = 'Hugging Face'
+    MiniMax = 'MiniMax'
     LocalLLM = 'Local LLM'
 
     @classmethod
@@ -21,12 +22,15 @@ class ModelSourceType(Enum):
         open_ai_models = ['gpt-4', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4-32k']
         google_models = ['google-palm-bison-001', 'models/chat-bison-001']
         replicate_models = ['replicate-llama13b-v2-chat']
+        minimax_models = ['MiniMax-M3', 'MiniMax-M2.7', 'MiniMax-M2.7-highspeed']
         if model_name in open_ai_models:
             return ModelSourceType.OpenAI
         if model_name in google_models:
             return ModelSourceType.GooglePalm
         if model_name in replicate_models:
             return ModelSourceType.Replicate
+        if model_name in minimax_models:
+            return ModelSourceType.MiniMax
         return ModelSourceType.OpenAI
 
     def __str__(self):

@@ -481,6 +481,7 @@ export const modelIcon = (model) => {
     'Google Palm': '/images/google_palm_logo.svg',
     'Replicate': '/images/replicate_logo.svg',
     'OpenAI': '/images/openai_logo.svg',
+    'MiniMax': '/images/minimax_logo.svg',
   }
 
   return icons[model];
@@ -492,6 +493,7 @@ export const modelGetAuth = (modelProvider) => {
     'Hugging Face': 'https://huggingface.co/settings/tokens',
     'OpenAI': 'https://platform.openai.com/account/api-keys',
     'Google Palm': 'https://developers.generativeai.google/products/palm',
+    'MiniMax': 'https://platform.minimaxi.com/user-center/basic-information/interface-key',
   }
 
   return externalLinks[modelProvider]
