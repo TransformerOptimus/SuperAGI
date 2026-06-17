@@ -60,6 +60,32 @@ def test_add_to_queue(task_queue_mock, agent_execution_feed_mock, queue_step_han
     queue_step_handler._process_reply.assert_called_once_with(task_queue_mock, '{"reply": ["task1", "task2"]}')
 
 
+# Security regression: _process_reply must not execute code embedded in the model
+# reply. A prompt-injected/adversarial model can return a string that is a valid
+# Python *expression* (e.g. a call to os.system); the queue step must reject it as a
+# non-literal instead of evaluating it.
+def test_process_reply_rejects_code_execution(queue_step_handler):
+    task_queue_mock = Mock()
+    # Payload that, under eval(), would invoke os.system and run a command.
+    malicious_reply = "[__import__('os').system('echo pwned')]"
+
+    with patch('os.system') as os_system_mock:
+        with pytest.raises(ValueError):
+            queue_step_handler._process_reply(task_queue_mock, malicious_reply)
+        os_system_mock.assert_not_called()
+
+    # No task should have been added from the malicious payload.
+    task_queue_mock.add_task.assert_not_called()
+
+
+def test_process_reply_parses_literal_array(queue_step_handler):
+    # A legitimate model reply (a literal list of task strings) must still be parsed
+    # and enqueued, including the single-quoted str(dict)-style form OpenAI emits.
+    task_queue_mock = Mock()
+    queue_step_handler._process_reply(task_queue_mock, "['task1', 'task2']")
+    assert task_queue_mock.add_task.call_count == 2
+
+
 @patch("superagi.agent.queue_step_handler.TaskQueue")
 @patch("superagi.agent.queue_step_handler.AgentExecutionFeed")
 def test_consume_from_queue(task_queue_mock, agent_execution_feed_mock, queue_step_handler, step_tool):

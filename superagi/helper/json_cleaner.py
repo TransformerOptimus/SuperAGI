@@ -1,3 +1,4 @@
+import ast
 import json
 import re
 from superagi.lib.logger import logger
@@ -6,6 +7,39 @@ import json5
 
 
 class JsonCleaner:
+
+    @classmethod
+    def parse_array_section(cls, input_str: str = ""):
+        """
+        Safely parse the array section of an LLM reply into a Python list.
+
+        This is the safe replacement for ``eval()`` on model output. Model
+        replies are only ever expected to contain a literal array of task
+        strings (e.g. ``["task1", "task2"]`` or, because OpenAI emits
+        ``str(dict)``-style payloads, single-quoted ``['task1', 'task2']``).
+        ``ast.literal_eval`` accepts both quoting styles but, unlike ``eval``,
+        evaluates *only* Python literals, so it can never execute function
+        calls, imports or other code embedded in the reply
+        (e.g. ``[__import__('os').system('id')]`` raises instead of running).
+
+        Args:
+            input_str (str): The (already array-sliced) model reply.
+
+        Returns:
+            list: The parsed list of tasks.
+
+        Raises:
+            ValueError: If the input is not a literal Python/JSON list.
+        """
+        array_section = cls.extract_json_array_section(input_str)
+        try:
+            parsed = ast.literal_eval(array_section)
+        except (ValueError, SyntaxError, TypeError, MemoryError, RecursionError):
+            logger.error("JsonCleaner.parse_array_section: unable to parse array section safely")
+            raise ValueError("Model reply did not contain a valid literal array")
+        if not isinstance(parsed, (list, tuple)):
+            raise ValueError("Model reply did not contain a valid literal array")
+        return list(parsed)
 
     @classmethod
     def clean_boolean(cls, input_str: str = ""):

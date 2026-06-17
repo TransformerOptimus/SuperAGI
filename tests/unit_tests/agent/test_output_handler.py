@@ -125,6 +125,30 @@ def test_task_output_handle_method(extract_json_array_section_mock, get_tasks_mo
     assert response.status == "PENDING"
 
 
+# Security regression: TaskOutputHandler must not execute code embedded in the
+# model reply. A prompt-injected/adversarial model can return a string that is a
+# valid Python *expression* (e.g. a call to os.system); the handler must reject
+# it as a non-literal instead of evaluating it.
+@patch.object(TaskQueue, 'add_task')
+@patch.object(TaskQueue, 'get_tasks')
+def test_task_output_handle_rejects_code_execution(get_tasks_mock, add_task_mock):
+    agent_execution_id = 1
+    agent_config = {"agent_id": 2}
+    # Payload that, under eval(), would invoke os.system and run a command.
+    malicious_reply = "[__import__('os').system('echo pwned')]"
+    get_tasks_mock.return_value = []
+    handler = TaskOutputHandler(agent_execution_id, agent_config)
+    session_mock = MagicMock()
+
+    with patch('os.system') as os_system_mock:
+        with pytest.raises(ValueError):
+            handler.handle(session_mock, malicious_reply)
+        os_system_mock.assert_not_called()
+
+    # No tasks should have been queued from the malicious payload.
+    add_task_mock.assert_not_called()
+
+
 # Test for ReplaceTaskOutputHandler
 @patch.object(TaskQueue, 'clear_tasks')
 @patch.object(TaskQueue, 'add_task')
@@ -152,3 +176,28 @@ def test_handle_method(extract_json_array_section_mock, get_tasks_mock, add_task
     assert add_task_mock.call_count == len(tasks)
     get_tasks_mock.assert_called_once()
     assert response.status == "PENDING"
+
+
+# Security regression: ReplaceTaskOutputHandler must not execute code embedded in
+# the model reply. A prompt-injected/adversarial model can return a string that is
+# a valid Python *expression* (e.g. a call to subprocess.getoutput); the handler
+# must reject it as a non-literal instead of evaluating it.
+@patch.object(TaskQueue, 'clear_tasks')
+@patch.object(TaskQueue, 'add_task')
+@patch.object(TaskQueue, 'get_tasks')
+def test_replace_task_output_handle_rejects_code_execution(get_tasks_mock, add_task_mock, clear_tasks_mock):
+    agent_execution_id = 1
+    agent_config = {}
+    # Payload that, under eval(), would invoke subprocess.getoutput and run a command.
+    malicious_reply = "[__import__('subprocess').getoutput('echo pwned')]"
+    get_tasks_mock.return_value = []
+    handler = ReplaceTaskOutputHandler(agent_execution_id, agent_config)
+    session_mock = MagicMock()
+
+    with patch('subprocess.getoutput') as getoutput_mock:
+        with pytest.raises(ValueError):
+            handler.handle(session_mock, malicious_reply)
+        getoutput_mock.assert_not_called()
+
+    # No tasks should have been queued from the malicious payload.
+    add_task_mock.assert_not_called()
