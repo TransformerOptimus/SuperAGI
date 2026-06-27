@@ -79,8 +79,9 @@ class ReadEmail:
         """
         filename = part.get_filename()
         if filename:
+            safe_filename = os.path.basename(filename)
             folder_name = self.clean(subject)
             if not os.path.isdir(folder_name):
                 os.mkdir(folder_name)
-                filepath = os.path.join(folder_name, filename)
+                filepath = os.path.join(folder_name, safe_filename)
                 open(filepath, "wb").write(part.get_payload(decode=True))
