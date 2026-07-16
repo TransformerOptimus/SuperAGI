@@ -26,7 +26,7 @@ class ResourceHelper:
         """
         storage_type = StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value))
         file_parts = os.path.splitext(file_name)
-        if len(file_parts) <= 1:
+        if not file_parts[1]:
             file_name = file_name + ".txt"
         file_extension = os.path.splitext(file_name)[1][1:]
 
