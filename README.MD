@@ -89,7 +89,7 @@ A dev-first open source autonomous AI agent framework enabling developers to bui
 - <b>Performance Telemetry</b> - Get insights into your agent’s performance and optimize accordingly.
 - <b>Optimized Token Usage</b> - Control token usage to manage costs effectively.
 - <b>Agent Memory Storage</b> - Enable your agents to learn and adapt by storing their memory.
-- <b>Models</b> - Custom fine tuned models for business specific usecases.
+- <b>Models</b> - Custom fine tuned models for business specific use cases.
 - <b>Workflows</b> - Automate tasks with ease using ReAct LLM's predefined steps.
 
 ### 🛠 Toolkits
@@ -133,7 +133,7 @@ cd SuperAGI
       docker compose -f docker-compose.yaml up --build
       ```
 
-   b. If you want to use SuperAGI with Local LLMs and have GPU, run the following command:
+   b. If you want to use SuperAGI with Local LLMs and have a GPU, run the following command:
       ```
       docker compose -f docker-compose-gpu.yml up --build
       ```
@@ -202,7 +202,7 @@ If you'd like to contribute, start by reading our [Contribution Guide](https://g
 
 We expect everyone participating in the community to abide by our [Code of Conduct](https://github.com/TransformerOptimus/SuperAGI/blob/main/CODE_OF_CONDUCT.md).
 
-To get more idea on where we are heading, checkout our roadmap [here](https://github.com/users/TransformerOptimus/projects/5/views/1).
+To get more idea on where we are heading, check out our roadmap [here](https://github.com/users/TransformerOptimus/projects/5/views/1).
 
 Explore some [good first issues](https://github.com/TransformerOptimus/SuperAGI/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) to start contributing.
 
