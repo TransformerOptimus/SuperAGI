@@ -1,5 +1,5 @@
 # Stage 1: Compile image
-FROM python:3.10-slim-bullseye AS compile-image
+FROM python:3.10-slim-bookworm AS compile-image
 WORKDIR /app
 
 RUN apt-get update && \
@@ -22,7 +22,7 @@ COPY . .
 RUN chmod +x ./entrypoint.sh ./wait-for-it.sh ./install_tool_dependencies.sh ./entrypoint_celery.sh
 
 # Stage 2: Build image
-FROM python:3.10-slim-bullseye AS build-image
+FROM python:3.10-slim-bookworm AS build-image
 WORKDIR /app
 
 RUN apt-get update && \

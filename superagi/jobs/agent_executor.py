@@ -37,7 +37,6 @@ Session = sessionmaker(bind=engine)
 class AgentExecutor:
 
     def execute_next_step(self, agent_execution_id):
-        global engine
         # try:
         engine.dispose()
         session = Session()

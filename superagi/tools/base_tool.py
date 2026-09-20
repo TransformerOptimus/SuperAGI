@@ -186,7 +186,6 @@ class FunctionalTool(BaseTool):
 def tool(*args: Union[str, Callable], return_direct: bool = False,
          args_schema: Optional[Type[BaseModel]] = None) -> Callable:
     def decorator(func: Callable) -> Callable:
-        nonlocal args_schema
 
         tool_instance = FunctionalTool.from_function(func, args_schema)
 
