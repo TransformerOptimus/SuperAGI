@@ -19,7 +19,7 @@ from superagi.models.agent import Agent
 from superagi.models.models import Models
 from fastapi import APIRouter
 from sqlalchemy import desc
-from superagi.helper.auth import check_auth
+from superagi.helper.auth import check_auth, get_user_organisation
 from superagi.controllers.types.agent_schedule import AgentScheduleInput
 from superagi.apm.event_handler import EventHandler
 from superagi.controllers.tool import ToolOut
@@ -233,7 +233,8 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
 
 @router.post("/schedule", status_code=201)
 def schedule_existing_agent(agent_schedule: AgentScheduleInput,
-                            Authorize: AuthJWT = Depends(check_auth)):
+                            Authorize: AuthJWT = Depends(check_auth),
+                            organisation=Depends(get_user_organisation)):
 
     """
     Schedules an already existing agent.
@@ -253,6 +254,20 @@ def schedule_existing_agent(agent_schedule: AgentScheduleInput,
     Raises:
         HTTPException (Status Code=500): If the agent fails to get scheduled.
     """
+
+    # Authorize the target agent before reading or modifying its schedule.  The
+    # agent's organization is derived from its project rather than from any
+    # client-controlled request field.
+    agent = db.session.query(Agent).filter(
+        Agent.id == agent_schedule.agent_id,
+        Agent.is_deleted == False
+    ).first()
+    if not agent:
+        raise HTTPException(status_code=404, detail="Agent not found")
+
+    agent_organisation = agent.get_agent_organisation(db.session)
+    if not agent_organisation or agent_organisation.id != organisation.id:
+        raise HTTPException(status_code=403, detail="Forbidden")
 
     # Check if the agent is already scheduled
     scheduled_agent = db.session.query(AgentSchedule).filter(AgentSchedule.agent_id == agent_schedule.agent_id,
