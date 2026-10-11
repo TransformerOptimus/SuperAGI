@@ -1,4 +1,5 @@
 import os
+import re
 
 from superagi.config.config import get_config
 from superagi.helper.s3_helper import S3Helper
@@ -79,15 +80,28 @@ class ResourceHelper:
             session.commit()
             return resource
 
+    @staticmethod
+    def _sanitize_path_component(value) -> str:
+        """Make a value safe to use as one directory name.
+
+        Path separators ("/" and "\\") and control characters (including NUL)
+        become "_". Spaces are removed. The result can not move a path up or down
+        the directory tree.
+        """
+        text = "" if value is None else str(value)
+        text = text.replace(" ", "")
+        return re.sub(r'[\x00-\x1f\x7f/\\]', '_', text)
+
     @classmethod
     def get_formatted_agent_level_path(cls, agent: Agent, path) -> object:
-        formatted_agent_name = agent.name.replace(" ", "")
-        return path.replace("{agent_id}", formatted_agent_name + '_' + str(agent.id))
+        formatted_agent_name = ResourceHelper._sanitize_path_component(agent.name + '_' + str(agent.id))
+        return path.replace("{agent_id}", formatted_agent_name)
 
     @classmethod
     def get_formatted_agent_execution_level_path(cls, agent_execution: AgentExecution, path):
-        formatted_agent_execution_name = agent_execution.name.replace(" ", "")
-        return path.replace("{agent_execution_id}", (formatted_agent_execution_name + '_' + str(agent_execution.id)))
+        formatted_agent_execution_name = ResourceHelper._sanitize_path_component(
+            agent_execution.name + '_' + str(agent_execution.id))
+        return path.replace("{agent_execution_id}", formatted_agent_execution_name)
 
     @classmethod
     def get_resource_path(cls, file_name: str):
@@ -125,12 +139,56 @@ class ResourceHelper:
         return root_dir
 
     @staticmethod
+    def _ensure_within(base_dir: str, path: str) -> str:
+        """Raise ValueError if path is not base_dir or a descendant of base_dir.
+
+        Both paths are resolved with os.path.realpath, so symlinks are followed.
+        The comparison uses os.path.commonpath, so /base2 does not match /base.
+        """
+        real_base = os.path.realpath(base_dir)
+        real_path = os.path.realpath(path)
+        try:
+            inside = os.path.commonpath([real_base, real_path]) == real_base
+        except ValueError:  # for example, paths on different drives
+            inside = False
+        if not inside:
+            raise ValueError(f"Path traversal detected: {path}")
+        return path
+
+    @staticmethod
     def _validate_path_containment(root_dir: str, file_name: str) -> str:
+        if not isinstance(file_name, str) or "\x00" in file_name:
+            raise ValueError("Path traversal detected: invalid file name")
         final_path = os.path.abspath(root_dir + file_name)
-        root_dir_abs = os.path.abspath(root_dir)
-        if not final_path.startswith(root_dir_abs + os.sep) and final_path != root_dir_abs:
+        try:
+            ResourceHelper._ensure_within(os.path.abspath(root_dir), final_path)
+        except ValueError:
             raise ValueError(f"Path traversal detected: {file_name}")
         return final_path
+
+    @staticmethod
+    def _static_root_prefix(root_template: str) -> str:
+        """Return the part of a root directory template before the first placeholder."""
+        index = root_template.find("{")
+        if index == -1:
+            return root_template
+        return root_template[:root_template.rfind("/", 0, index) + 1]
+
+    @classmethod
+    def _expand_root_dir(cls, root_template: str, agent: Agent, agent_execution: AgentExecution) -> str:
+        """Expand the placeholders of a root directory template.
+
+        The expanded directory must stay inside the fixed part of the template.
+        """
+        root_dir = root_template
+        if agent is not None and "{agent_id}" in root_dir:
+            root_dir = ResourceHelper.get_formatted_agent_level_path(agent, root_dir)
+        if agent_execution is not None and "{agent_execution_id}" in root_dir:
+            root_dir = ResourceHelper.get_formatted_agent_execution_level_path(agent_execution, root_dir)
+        if root_dir != root_template:
+            ResourceHelper._ensure_within(os.path.abspath(ResourceHelper._static_root_prefix(root_template)),
+                                          os.path.abspath(root_dir))
+        return root_dir
 
     @classmethod
     def get_agent_write_resource_path(cls, file_name: str, agent: Agent, agent_execution: AgentExecution):
@@ -141,13 +199,10 @@ class ResourceHelper:
             agent (Agent): The unique identifier of the agent.
             agent_execution (AgentExecution): The unique identifier of the agent.
         """
-        root_dir = ResourceHelper.get_root_output_dir()
-        if agent is not None and "{agent_id}" in root_dir:
-            root_dir = ResourceHelper.get_formatted_agent_level_path(agent, root_dir)
-            if agent_execution is not None and "{agent_execution_id}" in root_dir:
-                root_dir = ResourceHelper.get_formatted_agent_execution_level_path(agent_execution, root_dir)
-            directory = os.path.dirname(root_dir)
-            os.makedirs(directory, exist_ok=True)
+        root_template = ResourceHelper.get_root_output_dir()
+        root_dir = ResourceHelper._expand_root_dir(root_template, agent, agent_execution)
+        if agent is not None and "{agent_id}" in root_template:
+            os.makedirs(os.path.dirname(root_dir), exist_ok=True)
         final_path = ResourceHelper._validate_path_containment(root_dir, file_name)
         return final_path
 
@@ -170,22 +225,11 @@ class ResourceHelper:
             agent (Agent): The agent corresponding to resource.
             agent_execution (AgentExecution): The agent execution corresponding to the resource.
         """
-        input_root_dir = ResourceHelper.get_root_input_dir()
+        input_root_dir = ResourceHelper._expand_root_dir(ResourceHelper.get_root_input_dir(), agent, None)
         final_path = ResourceHelper._validate_path_containment(input_root_dir, file_name)
-        if "{agent_id}" in final_path:
-            final_path = ResourceHelper.get_formatted_agent_level_path(
-                agent=agent,
-                path=final_path)
         output_root_dir = ResourceHelper.get_root_output_dir()
         if final_path is None or cls.__check_file_path_exists(final_path):
             if output_root_dir is not None:
+                output_root_dir = ResourceHelper._expand_root_dir(output_root_dir, agent, agent_execution)
                 final_path = ResourceHelper._validate_path_containment(output_root_dir, file_name)
-                if "{agent_id}" in final_path:
-                    final_path = ResourceHelper.get_formatted_agent_level_path(
-                        agent=agent,
-                        path=final_path)
-                    if "{agent_execution_id}" in final_path:
-                        final_path = ResourceHelper.get_formatted_agent_execution_level_path(
-                            agent_execution=agent_execution,
-                            path=final_path)
         return final_path
