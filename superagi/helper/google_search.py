@@ -39,7 +39,8 @@ class GoogleSearchWrap:
         """
         all_snippets = []
         links = []
-        for page in range(1, self.num_pages * self.num_results, self.num_results):
+        response = None
+        for page in range(1, self.num_pages * self.num_results + 1, self.num_results):
             url = "https://www.googleapis.com/customsearch/v1"
             params = {
                 "key": self.api_key,
@@ -64,7 +65,7 @@ class GoogleSearchWrap:
             else:
                 logger.error(f"Error: {response.status_code}")
 
-        return all_snippets, links, response.status_code
+        return all_snippets, links, response.status_code if response else 500
 
     def get_result(self, query):
         """
