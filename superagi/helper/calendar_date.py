@@ -37,10 +37,10 @@ class CalendarDate:
         return datetime.strptime(date_str, date_format) if date_str else None
 
     def _localize_daterange(self, start_date, end_date, start_time, end_time, local_tz):
-        start_datetime = self._string_to_datetime(start_date, "%Y-%m-%d") if start_date != 'None' else datetime.now(
+        start_datetime = self._string_to_datetime(start_date, "%Y-%m-%d") if (start_date is not None and start_date != 'None') else datetime.now(
             timezone.utc)
         end_datetime = self._string_to_datetime(end_date,
-                                                "%Y-%m-%d") if end_date != 'None' else start_datetime + timedelta(
+                                                "%Y-%m-%d") if (end_date is not None and end_date != 'None') else start_datetime + timedelta(
             days=30) - timedelta(microseconds=1)
         time_obj_start = self._string_to_datetime(start_time, "%H:%M:%S")
         time_obj_end = self._string_to_datetime(end_time, "%H:%M:%S")
