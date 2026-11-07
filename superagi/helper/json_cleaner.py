@@ -89,19 +89,45 @@ class JsonCleaner:
         Returns:
             str: The json string with balanced braces.
         """
-        open_braces_count = json_string.count('{')
-        closed_braces_count = json_string.count('}')
+        open_braces_count = cls._count_braces_outside_strings(json_string, '{')
+        closed_braces_count = cls._count_braces_outside_strings(json_string, '}')
 
         while closed_braces_count > open_braces_count:
             json_string = json_string.rstrip("}")
             closed_braces_count -= 1
 
-        open_braces_count = json_string.count('{')
-        closed_braces_count = json_string.count('}')
+        open_braces_count = cls._count_braces_outside_strings(json_string, '{')
+        closed_braces_count = cls._count_braces_outside_strings(json_string, '}')
 
         if open_braces_count > closed_braces_count:
             json_string += '}' * (open_braces_count - closed_braces_count)
 
         return json_string
+
+    @staticmethod
+    def _count_braces_outside_strings(json_string: str, brace_char: str) -> int:
+        """Count occurrences of brace_char that are not inside JSON string literals.
+
+        A naive .count() includes braces inside string values (e.g. the '}'
+        in {"text": "}"}), which corrupts brace balancing. This iterates the
+        string and toggles a flag on unescaped double-quotes so only
+        structural braces are counted.
+        """
+        count = 0
+        in_string = False
+        escaped = False
+        for ch in json_string:
+            if escaped:
+                escaped = False
+                continue
+            if ch == '\\':
+                escaped = True
+                continue
+            if ch == '"':
+                in_string = not in_string
+                continue
+            if not in_string and ch == brace_char:
+                count += 1
+        return count
 
 
