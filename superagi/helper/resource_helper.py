@@ -39,11 +39,11 @@ class ResourceHelper:
 
         if agent is not None:
             final_path = ResourceHelper.get_agent_write_resource_path(file_name, agent, agent_execution)
+            file_path = ResourceHelper.get_agent_write_resource_path(file_name, agent, agent_execution)
         else:
             final_path = ResourceHelper.get_resource_path(file_name)
+            file_path = ResourceHelper.get_resource_path(file_name)
         file_size = os.path.getsize(final_path)
-
-        file_path = ResourceHelper.get_agent_write_resource_path(file_name, agent, agent_execution)
 
         logger.info("make_written_file_resource:", final_path)
         if StorageType.get_storage_type(get_config("STORAGE_TYPE", StorageType.FILE.value)) == StorageType.S3:
@@ -54,8 +54,8 @@ class ResourceHelper:
             storage_type=storage_type.value,
             type=file_type,
             channel="OUTPUT",
-            agent_id=agent.id,
-            agent_execution_id=agent_execution.id
+            agent_id=agent.id if agent is not None else None,
+            agent_execution_id=agent_execution.id if agent_execution is not None else None
         ).first()
 
         if existing_resource:
@@ -72,8 +72,8 @@ class ResourceHelper:
                 size=file_size,
                 type=file_type,
                 channel="OUTPUT",
-                agent_id=agent.id,
-                agent_execution_id=agent_execution.id
+                agent_id=agent.id if agent is not None else None,
+                agent_execution_id=agent_execution.id if agent_execution is not None else None
             )
             session.add(resource)
             session.commit()
