@@ -53,13 +53,13 @@ class S3Helper:
             raise HTTPException(status_code=500, detail="AWS credentials not found. Check your configuration.")
 
     def check_file_exists_in_s3(self, file_path):
-        response = self.s3.list_objects_v2(Bucket=get_config("BUCKET_NAME"), Prefix="resources" + file_path)
+        response = self.s3.list_objects_v2(Bucket=self.bucket_name, Prefix="resources" + file_path)
         return 'Contents' in response
 
     def read_from_s3(self, file_path):
         file_path = "resources" + file_path
         logger.info(f"Reading file from s3: {file_path}")
-        response = self.s3.get_object(Bucket=get_config("BUCKET_NAME"), Key=file_path)
+        response = self.s3.get_object(Bucket=self.bucket_name, Key=file_path)
         if response['ResponseMetadata']['HTTPStatusCode'] == 200:
             return response['Body'].read().decode('utf-8')
         raise Exception(f"Error read_from_s3: {response}")
@@ -67,7 +67,7 @@ class S3Helper:
     def read_binary_from_s3(self, file_path):
         file_path = "resources" + file_path
         logger.info(f"Reading file from s3: {file_path}")
-        response = self.s3.get_object(Bucket=get_config("BUCKET_NAME"), Key=file_path)
+        response = self.s3.get_object(Bucket=self.bucket_name, Key=file_path)
         if response['ResponseMetadata']['HTTPStatusCode'] == 200:
             return response['Body'].read()
         raise Exception(f"Error read_from_s3: {response}")
