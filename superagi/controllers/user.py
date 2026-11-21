@@ -11,7 +11,7 @@ from superagi.models.project import Project
 from superagi.models.user import User
 from fastapi import APIRouter
 
-from superagi.helper.auth import check_auth, get_current_user
+from superagi.helper.auth import check_auth, get_current_user, get_user_organisation
 from superagi.lib.logger import logger
 
 from superagi.models.models_config import ModelsConfig
@@ -73,6 +73,17 @@ def create_user(user: UserIn, Authorize: AuthJWT = Depends(check_auth)):
     db_user = db.session.query(User).filter(User.email == user.email).first()
     if db_user:
         return db_user
+
+    # Validate organization assignment to prevent cross-organization account creation
+    if user.organisation_id is not None:
+        try:
+            current_org = get_user_organisation(Authorize)
+            if current_org and current_org.id != user.organisation_id:
+                raise HTTPException(status_code=403, detail="Cannot create user in another organization")
+        except HTTPException as e:
+            if e.status_code == 403:
+                raise e
+            raise HTTPException(status_code=403, detail="Cannot assign user to an organization without authorization")
     
     db_user = User(name=user.name, email=user.email, password=user.password, organisation_id=user.organisation_id)
     db.session.add(db_user)
