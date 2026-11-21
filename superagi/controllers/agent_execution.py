@@ -19,12 +19,13 @@ from superagi.models.agent import Agent
 from superagi.models.models import Models
 from fastapi import APIRouter
 from sqlalchemy import desc
-from superagi.helper.auth import check_auth
+from superagi.helper.auth import check_auth, get_user_organisation
 from superagi.controllers.types.agent_schedule import AgentScheduleInput
 from superagi.apm.event_handler import EventHandler
 from superagi.controllers.tool import ToolOut
 from superagi.models.agent_config import AgentConfiguration
 from superagi.models.knowledges import Knowledges
+from superagi.models.project import Project
 
 router = APIRouter()
 
@@ -64,7 +65,8 @@ class AgentExecutionIn(BaseModel):
 # CRUD Operations
 @router.post("/add", response_model=AgentExecutionOut, status_code=201)
 def create_agent_execution(agent_execution: AgentExecutionIn,
-                           Authorize: AuthJWT = Depends(check_auth)):
+                           Authorize: AuthJWT = Depends(check_auth),
+                           organisation = Depends(get_user_organisation)):
     """
     Create a new agent execution/run.
 
@@ -80,6 +82,10 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
 
     agent = db.session.query(Agent).filter(Agent.id == agent_execution.agent_id, Agent.is_deleted == False).first()
     if not agent:
+        raise HTTPException(status_code=404, detail="Agent not found")
+
+    project = Project.find_by_id(db.session, agent.project_id)
+    if not project or project.organisation_id != organisation.id:
         raise HTTPException(status_code=404, detail="Agent not found")
 
     start_step = AgentWorkflow.fetch_trigger_step_id(db.session, agent.agent_workflow_id)
@@ -150,7 +156,9 @@ def create_agent_execution(agent_execution: AgentExecutionIn,
     return db_agent_execution
 
 @router.post("/add_run", status_code = 201)
-def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(check_auth)):
+def create_agent_run(agent_execution: AgentRunIn,
+                     Authorize: AuthJWT = Depends(check_auth),
+                     organisation = Depends(get_user_organisation)):
 
     """
     Create a new agent run with all the information(goals, instructions, model, etc).
@@ -167,6 +175,10 @@ def create_agent_run(agent_execution: AgentRunIn, Authorize: AuthJWT = Depends(c
 
     agent = db.session.query(Agent).filter(Agent.id == agent_execution.agent_id, Agent.is_deleted == False).first()
     if not agent:
+        raise HTTPException(status_code = 404, detail = "Agent not found")
+
+    project = Project.find_by_id(db.session, agent.project_id)
+    if not project or project.organisation_id != organisation.id:
         raise HTTPException(status_code = 404, detail = "Agent not found")
     
     #Update the agent configurations table with the data of the latest agent execution

@@ -46,3 +46,51 @@ def test_schedule_existing_agent_new_schedule(mock_patch_schedule_input, mock_sc
 
         assert response.status_code == 201
         assert response.json()["schedule_id"] is not None
+
+
+@pytest.fixture
+def mock_agent_run_input():
+    return {
+        "agent_id": 1,
+        "name": "Test Run",
+        "goal": ["Goal 1"],
+        "instruction": ["Instruction 1"],
+        "constraints": ["Constraint 1"],
+        "toolkits": [],
+        "exit": "No exit criterion",
+        "tools": [],
+        "iteration_interval": 500,
+        "model": "gpt-4",
+        "permission_type": "God Mode",
+        "LTM_DB": None,
+        "max_iterations": 10,
+        "user_timezone": "UTC",
+        "knowledge": None
+    }
+
+
+def test_create_agent_run_agent_not_found(mock_agent_run_input):
+    with patch('superagi.controllers.agent_execution.db') as mock_db, \
+         patch('superagi.controllers.agent_execution.get_user_organisation') as mock_get_org:
+        mock_get_org.return_value = mock.Mock(id=1)
+        mock_db.session.query.return_value.filter.return_value.first.return_value = None
+
+        response = client.post("agentexecutions/add_run", json=mock_agent_run_input)
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Agent not found"
+
+
+def test_create_agent_run_cross_organisation_denied(mock_agent_run_input):
+    with patch('superagi.controllers.agent_execution.db') as mock_db, \
+         patch('superagi.controllers.agent_execution.get_user_organisation') as mock_get_org, \
+         patch('superagi.controllers.agent_execution.Project') as mock_project:
+        mock_get_org.return_value = mock.Mock(id=1)
+        mock_agent = mock.Mock(id=1, is_deleted=False, project_id=10)
+        mock_db.session.query.return_value.filter.return_value.first.return_value = mock_agent
+        mock_project.find_by_id.return_value = mock.Mock(id=10, organisation_id=2)
+
+        response = client.post("agentexecutions/add_run", json=mock_agent_run_input)
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Agent not found"
