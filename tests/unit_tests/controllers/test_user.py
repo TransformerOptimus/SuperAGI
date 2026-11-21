@@ -35,3 +35,25 @@ def test_update_first_login_source(authenticated_user):
         assert response.status_code == 200
         assert "first_login_source" in response.json()  # Check if the "first_login_source" field is in the response
         assert response.json()["first_login_source"] == "github"  # Check if the "source" field equals "github"
+
+
+def test_create_user_missing_fields():
+    response = client.post("users/add", json={"name": "", "email": "", "password": ""})
+    assert response.status_code == 422
+
+
+def test_create_user_cross_org_denied():
+    with patch('superagi.controllers.user.db') as mock_db, \
+         patch('superagi.controllers.user.get_user_organisation') as mock_get_org:
+        mock_db.session.query.return_value.filter.return_value.first.return_value = None
+        mock_get_org.return_value = type("MockOrg", (), {"id": 1})()
+
+        payload = {
+            "name": "Attacker",
+            "email": "attacker@example.com",
+            "password": "secretpassword",
+            "organisation_id": 2
+        }
+        response = client.post("users/add", json=payload)
+        assert response.status_code == 403
+        assert response.json()["detail"] == "Cannot create user in another organization"
